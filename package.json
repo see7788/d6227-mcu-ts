@@ -1,0 +1,43 @@
+{
+  "name": "d6227-mcu-ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.0.1",
+    "@ant-design/plots": "^1.2.5",
+    "antd": "^5.1.7",
+    "immer": "9.0.19",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.0",
+    "react-use": "^17.4.0",
+    "recharts": "^2.6.0",
+    "zustand": "4.3.3"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/node": "16.18.11",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@types/w3c-web-serial": "^1.0.3",
+    "@types/web-bluetooth": "^0.0.16",
+    "@vitejs/plugin-react": "^3.1.0",
+    "rollup-plugin-visualizer": "^5.9.0",
+    "terser": "^5.16.3",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-html-config": "^1.0.11"
+  }
+}
