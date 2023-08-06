@@ -1,10 +1,11 @@
 import  { FC, useState } from "react"
-import useStore,{ TaskBconfigIndex_t } from '../../useStore'
+import {TaskBconfigIndex_t} from "./t"
+import useStore from '../../../../useStore'
 import { Space, Typography, Tooltip, InputNumber } from 'antd';
 const {  Text } = Typography;
 const Ui: FC = () => {
-    const config = useStore(s => s.config.dz003.taskB)
-    const log = useStore(s => s.state.dz003?.frequency.log)
+    const config = useStore(s => s.mcuConfig.server.dz003.taskB)
+    const log = useStore(s => s.mcuState.dz003?.frequency.log)
     const [open_bool, open_bool_set] = useState([false, false, false, false])
     const Reqbtn: FC<{
         configIndex: TaskBconfigIndex_t,
@@ -17,8 +18,8 @@ const Ui: FC = () => {
             } else {
                 open_bool_set(s => s.map((sv, si) => si === configIndex ? false : sv))
                 useStore.setState(s => {
-                    s.config.dz003.taskB[configIndex] = v;
-                    s.req<"dz003">("config_set", { dz003: s.config.dz003 })
+                    s.mcuConfig.server.dz003.taskB[configIndex] = v;
+                    s.req("mcuConfig_set", { server: s.mcuConfig.server })
                 })
             }
         }

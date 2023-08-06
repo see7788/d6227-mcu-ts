@@ -1,26 +1,105 @@
 import { immer } from 'zustand/middleware/immer'
 import { create } from "zustand"
 import _ from "lodash"
-import globalConfig from "./config.json";
-// export const sendToArr = ['webServer','serial']
-export const sendToArr = ['webSocketSend','serialSend']
-export const netArr = ["ap", "sta", "eth", "ap+sta", "ap+eth"]
-export type State = (typeof globalConfig)
-export enum TaskBconfigIndex_t {
-    'v0v1abs' = 0,
-    'v0v1absLoop',
-    'loopNumber',
-    'set0tick'
+type net_t = "ap" | "sta" | "eth" | "ap+sta" | "ap+eth"
+export const netArr: net_t[] = ["ap", "sta", "eth", "ap+sta", "ap+eth"]
+type sendEr_t = "server_serial" | "server_ws" | "server_tcp" | "client_serial" | "client_http" | "client_ws" | "client_tcp"
+// const internetServer = {
+//     "ws": "string",
+//     "tcp": "string",
+//     "mqtt": "string",
+//     "http": "string",
+//     "html": "http://39.97.216.195:8083/index.html?wsIp=",
+// }
+
+export type mcuConfig_t = {
+    env: {
+        packageName: string,
+    },
+    server: {
+        dz003: {
+            init: "taskA" | "taskB",
+            sendFun: sendEr_t,
+            taskA: [number, number],
+            taskB: [number, number, number, number]
+        },
+        net: {
+            init: string,
+            ap: [string, string, string?],
+            sta?: [string, string]
+        },
+        serial?: [number, sendEr_t],
+        http?: [string, sendEr_t],
+        tcp?: [string, sendEr_t],
+        ws?: [string, sendEr_t],
+        html?: string
+    },
+    client: {
+        serial?: [number, sendEr_t],
+        http?: [string, sendEr_t],
+        tcp?: [string, sendEr_t],
+        ws?: [string, sendEr_t],
+        html?: string
+    }
+}
+type dz003State_t = {
+    frequency: {
+        working: boolean,
+        value: [
+            number,
+            number
+        ],
+        log: [number, number, number, number]
+        read: [boolean, boolean]
+    },
+    fa: {
+        working: boolean,
+        read: boolean
+    },
+    laba: {
+        working: boolean,
+        read: boolean
+    },
+    deng: {
+        working: boolean,
+        read: [boolean, boolean]
+    },
+};
+export const mcuConfig: mcuConfig_t = {
+    env: {
+        "packageName": "d6227-mcu-ts"
+    },
+    server: {
+        dz003: {
+            init: "taskB",
+            sendFun: "server_serial",
+            taskA: [1000, 3000],
+            taskB: [50, 5000, 20000, 2000]
+        },
+        net: {
+            init: "eth",
+            ap: ["8.8.8.8", "1352Ap"],
+            sta: ["shuzijia", "80508833"]
+        },
+        serial: [9600, "server_serial"]
+    },
+    client: {
+        serial: [9600, "server_serial"],
+        html: "http://39.97.216.195:8083/index.html?wsIp="
+
+    },
 }
 type Store = {
-    res: <T extends keyof State >(op: ["config_set", Pick<State, T>] | ["globalConfig_set", State]) => void
-    req: <T extends keyof State>(...op:
-        ["config_set", Pick<State, T>] |
-        ["globalConfig_set", Partial<State>] |
-        ["globalConfig_get"] |
-        ["globalConfig_toFile"] |
-        ["globalConfig_fromFile"] |
-        ["espRestart"] |
+    res: <T extends keyof mcuConfig_t >(op:
+        ["config_set", Pick<mcuConfig_t, T>] |
+        ["globalConfig_set", mcuConfig_t] |
+        ["dz003.taskA" | "dz003.taskB", dz003State_t]
+    ) => void
+    req: <T extends keyof mcuConfig_t>(...op:
+        ["mcuConfig_set", Pick<mcuConfig_t, T>] |
+        ["mcuConfig_get"] |
+        ["mcuConfig_toFile"] |
+        ["mcuRestart"] |
         ["state.egbits_get"] |
         ["dz003.sendFun_set"] |
         ["dz003.fa_set", boolean] |
@@ -28,119 +107,39 @@ type Store = {
         ["dz003.laba_set", boolean] |
         ["dz003.deng_set", boolean]
     ) => Promise<void>;
-    config: State,
-    state: {
-        egbits?: Array<number>;
-        dz003?: {
-            frequency: {
-                working: boolean,
-                value: [
-                    number,
-                    number
-                ],
-                log: [number, number, number, number]
-                read: [boolean, boolean]
-            },
-            fa: {
-                working: boolean,
-                read: boolean
-            },
-            laba: {
-                working: boolean,
-                read: boolean
-            },
-            deng: {
-                working: boolean,
-                read: [boolean, boolean]
-            },
-        },
-        dz003log: Array<{
-            name: string;
-            x: number;
-            y: number
-        }>
+    mcuConfig: mcuConfig_t,
+    mcuState: {
+        locIp?: string;
+        dz003?: dz003State_t;
+        getSendEr: () => sendEr_t[]
     }
+
 }
-export default  create<Store>()(immer<Store>((set, self) => {
+export default create<Store>()(immer<Store>((set, self) => {
     return {
         res: ([api, info]) => set(s => {
-            let res = "web pass";
+            let res = "web use";
             if (api === "globalConfig_set") {
-                s.config = { ...s.config, ...info }
-                res = "web use";
+                s.mcuConfig = { ...s.mcuConfig, ...info }
                 self().req("state.egbits_get")
             } else if (api === "config_set") {
-                s.config = { ...s.config, ...info }
-                res = "web use";
-            } else if (api === "state.egbits_set") {
-                s.state.egbits = info
-                res = "web use----";
-            } else if (api === "dz003.taskA") {
-                s.state.dz003 = info as Store["state"]["dz003"];
-                const l = s.state.dz003log.length / 2
-                // if (l === 50) {
-                //     s.dz003.taskA.shift();
-                //     s.dz003.taskA.shift();
-                // }
-                // s.dz003.taskA.log.push(info["frequency"]["value"])
-                //Math.random()
-                s.state.dz003log = [...s.state.dz003log,
-                {
-                    x: l,
-                    y: info["frequency"]["value"][0],
-                    name: "传感器0"
-                }, {
-                    x: l,
-                    y: info["frequency"]["value"][1],
-                    name: "传感器1"
-                }]
-                res = "web use";
-            } else if (api === "dz003.taskB") {
-                s.state.dz003 = info as Store["state"]["dz003"];
-                const config = s.config.dz003.taskB;
-                const log = info["frequency"]["log"]
-                const l = s.state.dz003log.length / 6
-                s.state.dz003log = [...s.state.dz003log,
-                {
-                    x: l,
-                    y: log[TaskBconfigIndex_t.v0v1abs],
-                    name: "短时差值"
-                },
-                {
-                    x: l,
-                    y: config[TaskBconfigIndex_t.v0v1abs],
-                    name: "短时设定"
-                },
-                {
-                    x: l,
-                    y: log[TaskBconfigIndex_t.v0v1absLoop],
-                    name: "长时差值"
-                },
-                {
-                    x: l,
-                    y: config[TaskBconfigIndex_t.v0v1absLoop],
-                    name: "长时设定"
-                },
-                {
-                    x: l,
-                    y: log[TaskBconfigIndex_t.loopNumber],
-                    name: "长时循环数"
-                },
-                {
-                    x: l,
-                    y: config[TaskBconfigIndex_t.loopNumber],
-                    name: "长时循环设定"
-                }
-                ]
-                res = "web use";
+                s.mcuConfig = { ...s.mcuConfig, ...info }
+            } else if (api === "dz003.taskA" || api === "dz003.taskB") {
+                s.mcuState.dz003 = info;
+            } else {
+                res = 'web pass'
             }
             console.log({ res, api, info });
         }),
         req: async (...req) => console.log("req def", ...req),
-        config: globalConfig,
-        state: {
-            dz003log: []
-        }
+        mcuConfig: mcuConfig,
+        mcuState: {
+            getSendEr: () => {
+                const s = Object.keys(self().mcuConfig.server).filter(c => c !== "dz003" && c !== "net" && c !== "html").map(c => c as sendEr_t)
+                const c = Object.keys(self().mcuConfig.client).filter(c => c !== "html").map(c => c as sendEr_t)
+                return [...s, ...c]
+            }
+        },
     }
 }))
 // window.useStore = sss

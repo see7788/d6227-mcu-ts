@@ -1,7 +1,8 @@
 import { } from "react"
 import { FloatButton } from "antd"
-import useStore from "./useStore"
+import useStore from "../useStore"
 export default () => {
+    const req = useStore(s => s.req)
     return (
         <>
             <FloatButton
@@ -9,7 +10,7 @@ export default () => {
                 shape="square"
                 style={{ right: 70 }}
                 onClick={() => {
-                    useStore.getState().req("globalConfig_toFile");
+                    req("mcuConfig_toFile");
                 }}
             />
             <FloatButton
@@ -17,7 +18,7 @@ export default () => {
                 shape="square"
                 style={{ right: 20 }}
                 onClick={() => {
-                    useStore.getState().req("espRestart")
+                    req("mcuRestart")
                 }}
             />
         </>

@@ -1,10 +1,9 @@
-import { lazy, Suspense,Fragment} from "react"
+import { lazy, Suspense, Fragment } from "react"
 import { Collapse, theme } from "antd"
-import BigBtn from "./bigbtn"
-const NetServer = lazy(() => import("./config/netServer"))
-const SerialOnServer = lazy(() => import("./config/serialOnServer"))
-const WebServer = lazy(() => import("./config/webServer"))
-const Dz003 = lazy(() => import("./dz003/taskB"))
+import BigBtn from "./storeComponent/bigbtn"
+const Userver = lazy(() => import("./config/server"))
+const Udz003 = lazy(() => import("./config/server/dz003"))
+const Uclient = lazy(() => import("./config/client"))
 export default () => {
     const { Panel } = Collapse;
     const { token } = theme.useToken();
@@ -16,17 +15,14 @@ export default () => {
             // expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
             style={{ background: token.colorBgContainer }}
         ><Fragment>
-                <Panel header="漏水止损任务" key={1} extra={<>连接|断开</>}>
-                    <Suspense fallback={<>我是懒加载</>}><Dz003 /></Suspense>
+                <Panel key={1} header="水阀状态">
+                    <Suspense fallback={<></>}><Udz003 /></Suspense>
                 </Panel>
-                <Panel header="WebServer" key={2} extra={<>连接|断开</>}>
-                    <Suspense fallback={<>我是懒加载</>}><WebServer /></Suspense>
+                <Panel key={2} header="mcuServer端配置" extra={<></>}>
+                    <Suspense fallback={<></>}><Userver /></Suspense>
                 </Panel>
-                <Panel header="NetServer" key={3} extra={<>连接|断开</>}>
-                    <Suspense fallback={<>我是懒加载</>}><NetServer /></Suspense>
-                </Panel>
-                <Panel header="SerialOnServer" key={4} extra={<>连接|断开</>}>
-                    <Suspense fallback={<>我是懒加载</>}><SerialOnServer /></Suspense>
+                <Panel key={3} header="mcuClient端配置" >
+                    <Suspense fallback={<></>}><Uclient /></Suspense>
                 </Panel>
             </Fragment>
         </Collapse>

@@ -1,13 +1,10 @@
 import { FC, useState } from "react"
-import useStore,{ State } from '../../useStore'
+import useStore from '../../../../useStore'
 import { Space, Typography, Tooltip } from 'antd';
 
 const { Paragraph, Text, Link } = Typography;
 const Ui: FC = () => {
-    const c = useStore(s => s.config.dz003.taskA)
-    const api = (op: State["dz003"]) => {
-        useStore.getState().req<"dz003">("config_set", { "dz003": op });
-    }
+    const c = useStore(s => s.mcuConfig.server.dz003.taskA)
     const [absvalueopen, absvalueopen_set] = useState(false)
     const [tickopen, tickopen_set] = useState(false)
     const absvalue_set = (c: number|string) => {
@@ -17,8 +14,8 @@ const Ui: FC = () => {
         } else {
            useStore.setState(s => {
                 absvalueopen_set(false)
-                s.config.dz003.taskA[0] = v;
-                api(s.config.dz003);
+                s.mcuConfig.server.dz003.taskA[0] = v;
+                s.req("mcuConfig_set",{server:s.mcuConfig.server})
             })
         }
     }
@@ -29,8 +26,8 @@ const Ui: FC = () => {
         } else {
            useStore.setState(s => {
                 tickopen_set(false)
-                s.config.dz003.taskA[1] = v;
-                api(s.config.dz003);
+                s.mcuConfig.server.dz003.taskA[1] = v;
+                s.req("mcuConfig_set",{server:s.mcuConfig.server})
             })
         }
     }
