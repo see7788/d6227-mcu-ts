@@ -10,7 +10,7 @@ export default () => {
                 shape="square"
                 style={{ right: 70 }}
                 onClick={() => {
-                    req("mcuConfig_toFile");
+                    req("config_toFile");
                 }}
             />
             <FloatButton
@@ -18,7 +18,7 @@ export default () => {
                 shape="square"
                 style={{ right: 20 }}
                 onClick={() => {
-                    req("mcuRestart")
+                    req("restart")
                 }}
             />
         </>

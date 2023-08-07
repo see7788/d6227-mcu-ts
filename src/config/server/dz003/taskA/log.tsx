@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Line } from '@ant-design/plots';
 import useStore from "../../../../useStore"
 export default () => {
-  const v = useStore(s => s.mcuState.dz003?.frequency.value)
+  const v = useStore(s => s.dz003State?.frequency.value)
   const [log, setLog] = useState<Array<{x:number,y:number,name:string}>>([])
   useEffect(() => {
     const l = log.length / 2

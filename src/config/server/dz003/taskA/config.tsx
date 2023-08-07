@@ -4,7 +4,7 @@ import { Space, Typography, Tooltip } from 'antd';
 
 const { Paragraph, Text, Link } = Typography;
 const Ui: FC = () => {
-    const c = useStore(s => s.mcuConfig.server.dz003.taskA)
+    const c = useStore(s => s.config.server.dz003.taskA)
     const [absvalueopen, absvalueopen_set] = useState(false)
     const [tickopen, tickopen_set] = useState(false)
     const absvalue_set = (c: number|string) => {
@@ -14,8 +14,8 @@ const Ui: FC = () => {
         } else {
            useStore.setState(s => {
                 absvalueopen_set(false)
-                s.mcuConfig.server.dz003.taskA[0] = v;
-                s.req("mcuConfig_set",{server:s.mcuConfig.server})
+                s.config.server.dz003.taskA[0] = v;
+                s.req("config_set",{server:s.config.server})
             })
         }
     }
@@ -26,8 +26,8 @@ const Ui: FC = () => {
         } else {
            useStore.setState(s => {
                 tickopen_set(false)
-                s.mcuConfig.server.dz003.taskA[1] = v;
-                s.req("mcuConfig_set",{server:s.mcuConfig.server})
+                s.config.server.dz003.taskA[1] = v;
+                s.req("config_set",{server:s.config.server})
             })
         }
     }

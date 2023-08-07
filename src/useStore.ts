@@ -12,7 +12,7 @@ type sendEr_t = "server_serial" | "server_ws" | "server_tcp" | "client_serial" |
 //     "html": "http://39.97.216.195:8083/index.html?wsIp=",
 // }
 
-export type mcuConfig_t = {
+type config_t = {
     env: {
         packageName: string,
     },
@@ -28,19 +28,22 @@ export type mcuConfig_t = {
             ap: [string, string, string?],
             sta?: [string, string]
         },
-        serial?: [number, sendEr_t],
-        http?: [string, sendEr_t],
-        tcp?: [string, sendEr_t],
-        ws?: [string, sendEr_t],
+        serial: [sendEr_t,number],
+        http?: [sendEr_t,string, ],
+        tcp?: [sendEr_t,string],
+        ws?: [sendEr_t,string],
         html?: string
     },
     client: {
-        serial?: [number, sendEr_t],
-        http?: [string, sendEr_t],
-        tcp?: [string, sendEr_t],
-        ws?: [string, sendEr_t],
+        serial: [sendEr_t,number],
+        http?: [sendEr_t,string, ],
+        tcp?: [sendEr_t,string],
+        ws?: [sendEr_t,string],
         html?: string
     }
+}
+type state_t={
+    localIP: string;
 }
 type dz003State_t = {
     frequency: {
@@ -65,7 +68,7 @@ type dz003State_t = {
         read: [boolean, boolean]
     },
 };
-export const mcuConfig: mcuConfig_t = {
+export const mcuConfig: config_t = {
     env: {
         "packageName": "d6227-mcu-ts"
     },
@@ -81,65 +84,59 @@ export const mcuConfig: mcuConfig_t = {
             ap: ["8.8.8.8", "1352Ap"],
             sta: ["shuzijia", "80508833"]
         },
-        serial: [9600, "server_serial"]
+        serial: ["server_serial",9600]
     },
     client: {
-        serial: [9600, "server_serial"],
+        serial: [ "server_serial",9600],
         html: "http://39.97.216.195:8083/index.html?wsIp="
 
     },
 }
 type Store = {
-    res: <T extends keyof mcuConfig_t >(op:
-        ["config_set", Pick<mcuConfig_t, T>] |
-        ["globalConfig_set", mcuConfig_t] |
-        ["dz003.taskA" | "dz003.taskB", dz003State_t]
+    res: <T extends keyof config_t >(op:
+        ["config_set", Pick<config_t, T>|Partial<config_t>]|
+        ["state_set", state_t]  |
+        ["dz003.taskA" | "dz003.taskB", dz003State_t] 
     ) => void
-    req: <T extends keyof mcuConfig_t>(...op:
-        ["mcuConfig_set", Pick<mcuConfig_t, T>] |
-        ["mcuConfig_get"] |
-        ["mcuConfig_toFile"] |
-        ["mcuRestart"] |
-        ["state.egbits_get"] |
-        ["dz003.sendFun_set"] |
+    req: <T extends keyof config_t>(...op:
+        ["config_set", Pick<config_t, T>] |
+        ["config_get"] |
+        ["config_toFile"] |
+        ["config_fromFile"] |
+        ["restart"] |
+        ["state_get"] |
         ["dz003.fa_set", boolean] |
         ["dz003.frequency_set", boolean] |
         ["dz003.laba_set", boolean] |
         ["dz003.deng_set", boolean]
     ) => Promise<void>;
-    mcuConfig: mcuConfig_t,
-    mcuState: {
-        locIp?: string;
-        dz003?: dz003State_t;
-        getSendEr: () => sendEr_t[]
-    }
-
+    config: config_t,
+    configSendErGet: () => sendEr_t[];
+    state?: state_t
+    dz003State?: dz003State_t;
 }
 export default create<Store>()(immer<Store>((set, self) => {
     return {
         res: ([api, info]) => set(s => {
             let res = "web use";
-            if (api === "globalConfig_set") {
-                s.mcuConfig = { ...s.mcuConfig, ...info }
-                self().req("state.egbits_get")
-            } else if (api === "config_set") {
-                s.mcuConfig = { ...s.mcuConfig, ...info }
+            if (api === "config_set") {
+                s.config = { ...s.config, ...info }
+            } else if (api === "state_set") {
+                s.state = info
             } else if (api === "dz003.taskA" || api === "dz003.taskB") {
-                s.mcuState.dz003 = info;
+                s.dz003State = info;
             } else {
                 res = 'web pass'
             }
             console.log({ res, api, info });
         }),
         req: async (...req) => console.log("req def", ...req),
-        mcuConfig: mcuConfig,
-        mcuState: {
-            getSendEr: () => {
-                const s = Object.keys(self().mcuConfig.server).filter(c => c !== "dz003" && c !== "net" && c !== "html").map(c => c as sendEr_t)
-                const c = Object.keys(self().mcuConfig.client).filter(c => c !== "html").map(c => c as sendEr_t)
-                return [...s, ...c]
-            }
-        },
+        config: mcuConfig,
+        configSendErGet: () => {
+            const s = Object.keys(self().config.server).filter(c => c !== "dz003" && c !== "net" && c !== "html").map(c => c as sendEr_t)
+            const c = Object.keys(self().config.client).filter(c => c !== "html").map(c => c as sendEr_t)
+            return [...s, ...c]
+        }
     }
 }))
 // window.useStore = sss

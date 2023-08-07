@@ -3,8 +3,8 @@ import { Line } from '@ant-design/plots';
 import {TaskBconfigIndex_t} from "./t"
 import useStore from "../../../../useStore"
 export default () => {
-  const v = useStore(s => s.mcuState.dz003?.frequency.value)
-  const c = useStore(s => s.mcuConfig.server.dz003.taskB)
+  const v = useStore(s => s.dz003State?.frequency.value)
+  const c = useStore(s => s.config.server.dz003.taskB)
   const [log, setLog] = useState<Array<{ x: number, y: number, name: string }>>([])
   useEffect(() => {
     const l = log.length / 6
