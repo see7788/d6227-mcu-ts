@@ -8,7 +8,7 @@ const App: FC = () => {
     return (
         <Descriptions>
             <Descriptions.Item label={"水阀"}>
-                {mcuConfig.dz003.init}使用{mcuConfig.dz003.sendFun}转发<EditOutlined />
+                使用{mcuConfig.dz003[mcuConfig.dz003.length - 1]}转发<EditOutlined />
             </Descriptions.Item>
             <Descriptions.Item label={"net"}>
                 模式{mcuConfig.net?.init}<EditOutlined />

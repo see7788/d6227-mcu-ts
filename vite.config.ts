@@ -45,6 +45,7 @@ export default defineConfig((param) => {
     }
     const input = normalizePath(path.resolve(sitePath, `index.html`))
     const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${packagejson.name}-${site}-build`))
+    
     console.log({argv:process.argv, site, sitePath, isBuild, cwdPath, buildToPath })
     return {
         root: sitePath,

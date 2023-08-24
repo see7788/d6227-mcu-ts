@@ -1,7 +1,7 @@
 import  { FC } from "react"
 import { EditOutlined } from "@ant-design/icons"
 import { useHover } from 'react-use';
-import useStore from "../../../../useStore"
+import useStore from "../../../useStore"
 import { Button, Descriptions } from 'antd';
 const Ui: FC = () => {
     const c = useStore(s => s.dz003State)

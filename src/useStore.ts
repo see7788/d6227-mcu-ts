@@ -1,50 +1,36 @@
 import { immer } from 'zustand/middleware/immer'
 import { create } from "zustand"
+import { name, version } from "../package.json"
 import _ from "lodash"
-type net_t = "ap" | "sta" | "eth" | "ap+sta" | "ap+eth"
-export const netArr: net_t[] = ["ap", "sta", "eth", "ap+sta", "ap+eth"]
-type sendEr_t = "server_serial" | "server_ws" | "server_tcp" | "client_serial" | "client_http" | "client_ws" | "client_tcp"
-// const internetServer = {
-//     "ws": "string",
-//     "tcp": "string",
-//     "mqtt": "string",
-//     "http": "string",
-//     "html": "http://39.97.216.195:8083/index.html?wsIp=",
-// }
-
+const netArr = ["ap", "sta", "eth", "ap+sta", "ap+eth"] as const;
+type sendTo_t = string;//"server_serial"|"server_ws"|"client_ws"
 type config_t = {
-    env: {
-        packageName: string,
-    },
-    server: {
-        dz003: {
-            init: "taskA" | "taskB",
-            sendFun: sendEr_t,
-            taskA: [number, number],
-            taskB: [number, number, number, number]
-        },
-        net: {
-            init: string,
-            ap: [string, string, string?],
-            sta?: [string, string]
-        },
-        serial: [sendEr_t,number],
-        http?: [sendEr_t,string, ],
-        tcp?: [sendEr_t,string],
-        ws?: [sendEr_t,string],
-        html?: string
-    },
-    client: {
-        serial: [sendEr_t,number],
-        http?: [sendEr_t,string, ],
-        tcp?: [sendEr_t,string],
-        ws?: [sendEr_t,string],
-        html?: string
-    }
+    server_env?: [mcuMac: string,logsendTo: sendTo_t, packageName: string, version: string];
+    server_serial?: [sendTo_t, baudRate: number, rxIo: number, txIo: number];
+    server_dz003?: [v0v1abs: number, v0v1absLoop: number, loopNumber: number, set0tick: number, sendTo_t],
+    server_net?: {
+        init: typeof netArr[number],
+        ap: [ssid: string, password: string],
+        sta: [ssid: string, password: string]
+    };
+    server_ota?: [port: number, path: string];
+    server_events?: [port: number, path: string];
+    server_html?: [port: number, path: string];
+    server_static?: [port: number, path: string];
+    server_ws?: [sendTo_t, port: number, path: string];
+    server_tcp?: [sendTo_t, port: number, path: string];
+    client_serial?: [sendTo_t, number];
+    client_html?: [ip: string, port: number];
+    client_ws?: [sendTo_t, ip: string, port: number, path: string];
+    client_http?: [sendTo_t, ip: string, port: number, path: string];
+    client_tcp?: [sendTo_t, ip: string, port: number, path: string];
 }
-type state_t={
-    localIP: string;
-}
+
+type state_t = {
+    egBit: Array<0 | 1>;
+    locIp: string;
+    taskindex: number;
+};
 type dz003State_t = {
     frequency: {
         working: boolean,
@@ -68,39 +54,16 @@ type dz003State_t = {
         read: [boolean, boolean]
     },
 };
-export const mcuConfig: config_t = {
-    env: {
-        "packageName": "d6227-mcu-ts"
-    },
-    server: {
-        dz003: {
-            init: "taskB",
-            sendFun: "server_serial",
-            taskA: [1000, 3000],
-            taskB: [50, 5000, 20000, 2000]
-        },
-        net: {
-            init: "eth",
-            ap: ["8.8.8.8", "1352Ap"],
-            sta: ["shuzijia", "80508833"]
-        },
-        serial: ["server_serial",9600]
-    },
-    client: {
-        serial: [ "server_serial",9600],
-        html: "http://39.97.216.195:8083/index.html?wsIp="
-
-    },
-}
+// console.log(JSON.stringify(mcuConfig))
 type Store = {
     res: <T extends keyof config_t >(op:
-        ["config_set", Pick<config_t, T>|Partial<config_t>]|
-        ["state_set", state_t]  |
-        ["dz003.taskA" | "dz003.taskB", dz003State_t] 
+        ["config_set", Pick<config_t, T> | Partial<config_t>] |
+        ["state_set", state_t] |
+        ["dz003State", dz003State_t]
     ) => void
     req: <T extends keyof config_t>(...op:
-        ["config_set", Pick<config_t, T>] |
-        ["config_get"] |
+        ["config_set", Pick<config_t, T> | Partial<config_t>] |
+        ["config_get", T?] |
         ["config_toFile"] |
         ["config_fromFile"] |
         ["restart"] |
@@ -110,8 +73,7 @@ type Store = {
         ["dz003.laba_set", boolean] |
         ["dz003.deng_set", boolean]
     ) => Promise<void>;
-    config: config_t,
-    configSendErGet: () => sendEr_t[];
+    config: config_t;
     state?: state_t
     dz003State?: dz003State_t;
 }
@@ -123,7 +85,7 @@ export default create<Store>()(immer<Store>((set, self) => {
                 s.config = { ...s.config, ...info }
             } else if (api === "state_set") {
                 s.state = info
-            } else if (api === "dz003.taskA" || api === "dz003.taskB") {
+            } else if (api === "dz003State") {
                 s.dz003State = info;
             } else {
                 res = 'web pass'
@@ -131,12 +93,7 @@ export default create<Store>()(immer<Store>((set, self) => {
             console.log({ res, api, info });
         }),
         req: async (...req) => console.log("req def", ...req),
-        config: mcuConfig,
-        configSendErGet: () => {
-            const s = Object.keys(self().config.server).filter(c => c !== "dz003" && c !== "net" && c !== "html").map(c => c as sendEr_t)
-            const c = Object.keys(self().config.client).filter(c => c !== "html").map(c => c as sendEr_t)
-            return [...s, ...c]
-        }
+        config:{}//as config_t,
     }
 }))
 // window.useStore = sss

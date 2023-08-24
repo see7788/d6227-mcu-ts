@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { Line } from '@ant-design/plots';
 import {TaskBconfigIndex_t} from "./t"
-import useStore from "../../../../useStore"
+import useStore from "../../../useStore"
 export default () => {
   const v = useStore(s => s.dz003State?.frequency.value)
-  const c = useStore(s => s.config.server.dz003.taskB)
+  const c = useStore(s => s.config.server.dz003)
   const [log, setLog] = useState<Array<{ x: number, y: number, name: string }>>([])
   useEffect(() => {
     const l = log.length / 6
