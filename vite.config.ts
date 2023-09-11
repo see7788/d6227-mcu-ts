@@ -1,7 +1,6 @@
 import { defineConfig, Plugin, UserConfigExport, normalizePath } from 'vite'
 import react from '@vitejs/plugin-react'
 import packagejson from "./package.json"
-import {mcu00} from "./src/useConfig"
 // import { visualizer } from "rollup-plugin-visualizer"
 // import viteCompression from 'vite-plugin-compression';
 import htmlConfig from 'vite-plugin-html-config';
@@ -64,7 +63,7 @@ export default defineConfig((param) => {
             htmlConfig({
                 title: site + packagejson.name,
             }),
-            variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
+            //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
             // copyFileToFile_plugin(
             //     path.resolve(srcPath, "config.json"),
             //     path.resolve(buildToPath, "config.json")

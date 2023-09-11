@@ -94,7 +94,7 @@ export default () => {
                     const db = JSON.stringify(op)
                     return await writer.write(new TextEncoder().encode(db));
                 }
-                s.req("globalConfig_get");
+                s.req("config_get").then(()=>s.req("state_get"));
             })
             while (true) {
                 const { value, done } = await reader.read()

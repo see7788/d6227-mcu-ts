@@ -1,13 +1,13 @@
 import { FC } from 'react'
 import { Descriptions, Space, Input, Typography } from "antd"
 import { EditOutlined } from "@ant-design/icons"
-import useStore from "../../useStore"
+import useStore from "../useStore"
 const App: FC = () => {
-    const mcuConfig = useStore(s => s.config.server)
+    const mcuConfig = useStore(s => s.config)
     // console.log(useStore.getState().getSendEr())
     return (
         <Descriptions>
-            <Descriptions.Item label={"水阀"}>
+            {/* <Descriptions.Item label={"水阀"}>
                 使用{mcuConfig.dz003[mcuConfig.dz003.length - 1]}转发<EditOutlined />
             </Descriptions.Item>
             <Descriptions.Item label={"net"}>
@@ -27,7 +27,7 @@ const App: FC = () => {
             </Descriptions.Item>
             <Descriptions.Item label={"html"}>
                 监听{mcuConfig.html || '?'}<EditOutlined />
-            </Descriptions.Item>
+            </Descriptions.Item> */}
         </Descriptions>
     )
 }

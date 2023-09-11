@@ -1,10 +1,10 @@
 import  { FC } from "react"
 import { EditOutlined } from "@ant-design/icons"
 import { useHover } from 'react-use';
-import useStore from "../../../useStore"
+import useStore from "../../useStore"
 import { Button, Descriptions } from 'antd';
 const Ui: FC = () => {
-    const c = useStore(s => s.dz003State)
+    const c = useStore(s => s.state.dz003_mcu00)
     const req = useStore(s => s.req)
     const booltoname = (bool: boolean) => bool ? "通电" : "断电"
     const [frequency] = useHover((hovered: any) => {
