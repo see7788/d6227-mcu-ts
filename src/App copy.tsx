@@ -1,15 +1,13 @@
 import { lazy, Suspense, Fragment } from "react"
 import { Collapse, theme } from "antd"
 import BigBtn from "./storeComponent/bigbtn"
-const Userver = lazy(() => import("./config"))
-const Udz003 = lazy(() => import("./config/dz003_mcu00"))
+const Udz003 = lazy(() => import("./mcu00/dz003"))
 export default () => {
     const { Panel } = Collapse;
     const { token } = theme.useToken();
     const uis = [
-        ["水阀状态", <Suspense fallback={<></>}><Udz003 /></Suspense>],
-        ["mcu状态", <Suspense fallback={<></>}></Suspense>],
-        ["mcuServer端配置", <Suspense fallback={<></>}><Userver /></Suspense>],
+        // ["水阀状态", <Suspense fallback={<></>}><Udz003 /></Suspense>],
+        ["mcu状态", <Suspense fallback={<></>}>888888888888</Suspense>],
     ];
     // return <Fragment>
     //     <BigBtn />

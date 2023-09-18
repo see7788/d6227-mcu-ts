@@ -2,7 +2,6 @@ import { FC, Suspense, useState } from 'react'
 import { Input, Button, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import hook from "./useWebSocket"
-import App from "../App"
 const UI: FC<{ ip?:string }> = ({ ip}) => {
     const [ip2,setIp2]=useState(ip)
     const {msg,connect,disconnect}=hook()
@@ -10,7 +9,7 @@ const UI: FC<{ ip?:string }> = ({ ip}) => {
         return (
             <>
                 <Button onClick={() => disconnect()}>断开</Button>
-                <Suspense fallback={<LoadingOutlined style={{ fontSize: '30px' }} spin />}><App /></Suspense>
+                <Suspense fallback={<LoadingOutlined style={{ fontSize: '30px' }} spin />}>111111111</Suspense>
             </>
         );
     }  else {

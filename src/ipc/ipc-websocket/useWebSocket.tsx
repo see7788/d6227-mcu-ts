@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import useStore from "../useStore"
+import useStore from "../../useStore"
 let webSocketObj: WebSocket;
 type ip_t = `${number}.${number}.${number}.${number}`
 function readyState(): Promise<void> {

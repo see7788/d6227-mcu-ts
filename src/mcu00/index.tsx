@@ -3,10 +3,11 @@ import { Descriptions, Space, Input, Typography } from "antd"
 import { EditOutlined } from "@ant-design/icons"
 import useStore from "../useStore"
 const App: FC = () => {
-    const mcuConfig = useStore(s => s.config)
+    const mcuConfig = useStore(s => s.state)
     // console.log(useStore.getState().getSendEr())
     return (
         <Descriptions>
+            {JSON.stringify(mcuConfig)}
             {/* <Descriptions.Item label={"水阀"}>
                 使用{mcuConfig.dz003[mcuConfig.dz003.length - 1]}转发<EditOutlined />
             </Descriptions.Item>

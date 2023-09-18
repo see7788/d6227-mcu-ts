@@ -4,7 +4,7 @@ import { useHover } from 'react-use';
 import useStore from "../../useStore"
 import { Button, Descriptions } from 'antd';
 const Ui: FC = () => {
-    const c = useStore(s => s.state.dz003_mcu00)
+    const c = useStore(s => s.state.mcu00_dz003_state)
     const req = useStore(s => s.req)
     const booltoname = (bool: boolean) => bool ? "通电" : "断电"
     const [frequency] = useHover((hovered: any) => {
@@ -27,7 +27,7 @@ const Ui: FC = () => {
         return (
             <Descriptions>
                 <Descriptions.Item label="脉冲状态">{frequency}</Descriptions.Item>
-                <Descriptions.Item label="脉冲数值">{c?.frequency.value[0]}:{c?.frequency.value[1]}</Descriptions.Item>
+                <Descriptions.Item label="脉冲数值">{c?.frequency.value[0]||0}:{c?.frequency.value[1]||0}</Descriptions.Item>
                 <Descriptions.Item label="脉冲差值">{c ? Math.abs(c.frequency.value[0] - c.frequency.value[1]) : 0}</Descriptions.Item>
                 
                 {/* <Descriptions.Item label="脉冲长时差值">{c["frequency"]["log"][TaskBconfigIndex_t.v0v1absLoop]}</Descriptions.Item> */}

@@ -22,7 +22,7 @@
   },
   "include": [
     "src/",
-    "env.d.ts",
+    "env.d.ts", "src/mcu00_dz003",
   ],
   "references": [
     {

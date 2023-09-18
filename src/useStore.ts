@@ -2,11 +2,8 @@ import { immer } from 'zustand/middleware/immer'
 import { create } from "zustand"
 import _ from "lodash"
 export const netArr = ["ap", "sta", "eth", "ap+sta", "ap+eth"] as const;
-type onSendTo_t = "serial_mcu00" | "ws_mcu00" | "wsClient_mcu00" | "events_mcu00"
-interface publicstate_t{
-
-}
-interface publicconfig_t {
+type onSendTo_t = "mcu00_serial" | "mcu00_ws" | "mcu00_wsClient" | "mcu00_events"
+interface public_t {
     net: {
         use: typeof netArr[number],
         ap: [ssid: string],
@@ -26,38 +23,6 @@ interface publicconfig_t {
     routerIndexHtml: [ip: string, port: number];
     mqtt: [s: onSendTo_t, ip: string, port: number, path: string];
 }
-interface mcu00_t {
-    log_mcu00: [s: onSendTo_t];
-    net_mcu00: publicconfig_t["net"];
-    serial_mcu00: publicconfig_t['serial'];
-    ybl_mcu00: [onSendTo_t];
-    dz003_mcu00: [s: onSendTo_t, v0v1abs: number, v0v1absLoop: number, loopNumber: number, set0tick: number];
-    //_  mcuxxx||lanxxx||internetxxx
-}
-export const mcu00: mcu00_t = {
-    "log_mcu00": [
-        "serial_mcu00"
-    ],
-    "serial_mcu00": [
-        "serial_mcu00",
-        115200
-    ],
-    "net_mcu00": {
-        "use": "eth",
-        "ap": ["apname"],
-        "sta": ["shuzijia", "80508833"]
-    },
-    "dz003_mcu00": [
-        "serial_mcu00",
-        1000,
-        1000,
-        1000,
-        5000
-    ],
-    "ybl_mcu00": [
-        "serial_mcu00"
-    ]
-};
 interface dz003State_t {
     frequency: {
         working: boolean,
@@ -81,24 +46,57 @@ interface dz003State_t {
         read: [boolean, boolean]
     },
 };
+interface mcuState_t {
+    macId: string;
+    packageId: string;
+    egBit: Array<0 | 1>;
+    locIp: string;
+    taskindex: number;
+}
+interface mcu00_t {
+    mcu00_log: [s: onSendTo_t];
+    mcu00_net: public_t["net"];
+    mcu00_serial: public_t['serial'];
+    mcu00_ybl: [onSendTo_t];
+    mcu00_dz003: [s: onSendTo_t, v0v1abs: number, v0v1absLoop: number, loopNumber: number, set0tick: number];
+    //_  mcuxxx||lanxxx||internetxxx
+}
+export const mcu00: mcu00_t = {
+    "mcu00_log": [
+        "mcu00_serial"
+    ],
+    "mcu00_serial": [
+        "mcu00_serial",
+        115200
+    ],
+    "mcu00_net": {
+        "use": "eth",
+        "ap": ["apname"],
+        "sta": ["shuzijia", "80508833"]
+    },
+    "mcu00_dz003": [
+        "mcu00_serial",
+        1000,
+        1000,
+        1000,
+        5000
+    ],
+    "mcu00_ybl": [
+        "mcu00_serial"
+    ]
+};
 interface config_t extends mcu00_t {
 
 }
-interface state_t {
-    mcu00?: {
-        macId: string;
-        packageId: string;
-        egBit: Array<0 | 1>;
-        locIp: string;
-    taskindex: number;
-    } ;
-    dz003_mcu00?: dz003State_t
+interface state_t extends config_t {
+    mcu00_state?: mcuState_t
+    mcu00_dz003_state?: dz003State_t;
 }
 // console.log(JSON.stringify(mcuConfig))
 interface Store {
-    res: <T extends keyof config_t >(op:
-        ["config_set", Pick<config_t, T> | Partial<config_t>] |
-        ["state_set", state_t]
+    res: <T extends keyof state_t >(op:
+        ["config_set", Pick<state_t, T> | Partial<state_t>] |
+        ["state_set", Pick<state_t, T> | Partial<state_t>]
     ) => void
     req: <T extends keyof config_t>(...op:
         ["config_set", Pick<config_t, T> | Partial<config_t>] |
@@ -112,18 +110,18 @@ interface Store {
         ["dz003.laba_set", boolean] |
         ["dz003.deng_set", boolean]
     ) => Promise<void>;
-    config: Partial<config_t>;
+    bool:{
+
+    };
     state: state_t;
 }
 export default create<Store>()(immer<Store>((set, self) => {
     return {
-        config: {},
-        state: {},
+        bool:{},
+        state: { ...mcu00 },
         res: ([api, info]) => set(s => {
             let res = "web use";
-            if (api === "config_set") {
-                s.config = { ...s.config, ...info }
-            } else if (api === "state_set") {
+            if (api === "config_set"||api === "state_set") {
                 s.state = { ...s.state, ...info }
             } else {
                 res = 'web pass'

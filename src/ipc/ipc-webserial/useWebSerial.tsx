@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import useStore from "../useStore"
+import useStore from "../../useStore"
 type ResStream_analysisParam_t = "{}" | "\n"
 class ResStream_analysis {
     transform: (chunk: string, controller: any) => void | Promise<void>

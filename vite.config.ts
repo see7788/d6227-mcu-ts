@@ -49,14 +49,14 @@ export default defineConfig((param) => {
     const sitePath = normalizePath(path.resolve(srcPath, site))
     if (!fs.existsSync(sitePath)) {
         const apps = fs.readdirSync(srcPath).filter(v => v.indexOf("app-") > -1);
-        throw new Error(`must --mode ${apps.join("|")}`)
+
+        throw new Error(apps.map(v => `pnpm run dev --mode ${v}`).join("\n"))
     }
-    const input = normalizePath(path.resolve(sitePath, `index.html`))
     const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${packagejson.name}-${site}-build`))
 
     console.log({ argv: process.argv, site, sitePath, isBuild, cwdPath, buildToPath })
     return {
-        root: sitePath,
+       // root: sitePath,
         server: { open: true },
         plugins: [
             react(),
@@ -92,11 +92,11 @@ export default defineConfig((param) => {
                 },
             },
             emptyOutDir: true,//打包前清空
-            assetsDir: './',
+            //assetsDir: './',
             outDir: buildToPath,
             sourcemap: false,
             rollupOptions: {
-                input,
+                // input,
                 output: {
                     entryFileNames: '[name][hash:6].js',
                     chunkFileNames: '[name][hash:6].js',
