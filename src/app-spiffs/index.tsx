@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from "react-router-dom";
-import App from "../ipc/ipc-websocket/App"
+import App from "../ipc/websocket/App"
 import _ from "lodash"
 const urlParams = new URLSearchParams(window.location.search);
 const ip = urlParams.get('wsIp') || "192.168.110.174"

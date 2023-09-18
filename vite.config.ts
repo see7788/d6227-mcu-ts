@@ -56,7 +56,7 @@ export default defineConfig((param) => {
 
     console.log({ argv: process.argv, site, sitePath, isBuild, cwdPath, buildToPath })
     return {
-       // root: sitePath,
+        // root: sitePath,
         server: { open: true },
         plugins: [
             react(),
@@ -96,7 +96,10 @@ export default defineConfig((param) => {
             outDir: buildToPath,
             sourcemap: false,
             rollupOptions: {
-                // input,
+                // input: {
+                //     main: 'src/main.js',
+                //     admin: 'src/admin.js',
+                // },
                 output: {
                     entryFileNames: '[name][hash:6].js',
                     chunkFileNames: '[name][hash:6].js',

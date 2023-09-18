@@ -50,7 +50,8 @@ export default () => {
                     const db = JSON.stringify(op)
                     return webSocketObj.send(db);
                 };
-                s.req("config_get").then(()=>s.req("state_get"));
+                s.req("config_get");
+                s.req("state_get");
             })
         }
         webSocketObj.onmessage = e => {
