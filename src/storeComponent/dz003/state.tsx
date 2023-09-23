@@ -4,7 +4,7 @@ import { useHover } from 'react-use';
 import useStore from "../../useStore"
 import { Button, Descriptions } from 'antd';
 const Ui: FC = () => {
-    const c = useStore(s => s.state.mcu00_dz003_state)
+    const c = useStore(s => s.state.mcu00_dz003State)
     const req = useStore(s => s.req)
     const booltoname = (bool: boolean) => bool ? "通电" : "断电"
     const [frequency] = useHover((hovered: any) => {

@@ -1,57 +1,14 @@
-import { lazy, FC, Suspense, Fragment } from 'react'
-import { Descriptions, Collapse, theme } from "antd"
-import { EditOutlined } from "@ant-design/icons"
-import useStore from "../useStore"
-const BigBtn = lazy(() => import("../storeComponent/bigbtn"))
-const App: FC = () => {
-    const mcuConfig = useStore(s => s.state)
-    // console.log(useStore.getState().getSendEr())
-    // return (
-    //     <Descriptions>
-    //         <Descriptions.Item label={"水阀"}>
-    //             {JSON.stringify(mcuConfig)}
-    //         </Descriptions.Item>
-    //         {/* <Descriptions.Item label={"net"}>
-    //             模式{mcuConfig.net?.init}<EditOutlined />
-    //         </Descriptions.Item> */}
-    //         {/* <Descriptions.Item label={"serial"}>
-    //             监听{mcuConfig.serial?.[1] || '?'}波特率并用{mcuConfig.serial?.[0] || '?'}转发<EditOutlined />
-    //         </Descriptions.Item>
-    //         <Descriptions.Item label={"http"}>
-    //             监听{mcuConfig.http?.[1] || '?'}并用{mcuConfig.http?.[0] || '?'}转发<EditOutlined />
-    //         </Descriptions.Item>
-    //         <Descriptions.Item label={"tcp"}>
-    //             监听{mcuConfig.tcp?.[1] || '?'}并用{mcuConfig.tcp?.[0] || '?'}转发<EditOutlined />
-    //         </Descriptions.Item>
-    //         <Descriptions.Item label={"ws"}>
-    //             监听{mcuConfig.ws?.[1] || '?'}并用{mcuConfig.ws?.[0] || '?'}转发<EditOutlined />
-    //         </Descriptions.Item>
-    //         <Descriptions.Item label={"html"}>
-    //             监听{mcuConfig.html || '?'}<EditOutlined />
-    //         </Descriptions.Item> */}
-    //     </Descriptions>
-    // )
-    const { Panel } = Collapse;
-    const { token } = theme.useToken();
-    const uis = [
-        ["mcu状态", <Suspense fallback={<></>}>{JSON.stringify(mcuConfig)}</Suspense>],
-    ];
-    return <Fragment>
-        <Suspense fallback={<></>}> <BigBtn /></Suspense>
-        <Collapse
-            bordered={false}
-            defaultActiveKey={['1']}
-            // expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-            style={{ background: token.colorBgContainer }}
-        >
-            <Fragment>
-                {uis.map((c, i) => (
-                    <Panel key={i} header={c[0]} extra={<></>}>
-                        {c[1]}
-                    </Panel>
-                ))}
-            </Fragment>
-        </Collapse>
-    </Fragment>
-}
-export default App
+import React, { lazy, Suspense } from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from "react-router-dom";
+import App from "./App"
+// console.log(import.meta.env.BASE_URL)
+ReactDOM.createRoot(
+    document.getElementById('root') as HTMLElement
+).render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <App/>
+        </BrowserRouter>
+    </React.StrictMode>
+)

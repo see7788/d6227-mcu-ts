@@ -1,6 +1,7 @@
-import { defineConfig, Plugin, UserConfigExport, normalizePath } from 'vite'
+import { defineConfig, Plugin, loadEnv, UserConfigExport, normalizePath } from 'vite'
 import react from '@vitejs/plugin-react'
 import packagejson from "./package.json"
+// import {mcu00} from "./src/useStore"
 // import { visualizer } from "rollup-plugin-visualizer"
 // import viteCompression from 'vite-plugin-compression';
 import htmlConfig from 'vite-plugin-html-config';
@@ -8,7 +9,7 @@ import path from "path"
 import fs from "fs"
 function copyFileToFile_plugin(srcpath: string, destpath: string): Plugin {
     return {
-        name: 'vite-copyfile-plugin',
+        name: 'copyFileToFile_plugin',
         apply: 'build',
         async generateBundle(): Promise<any> {
             return new Promise(ok => {
@@ -33,35 +34,40 @@ function copyFileToFile_plugin(srcpath: string, destpath: string): Plugin {
 }
 function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
     return {
-        name: 'vite-variableToFile-plugin',
-        apply: 'build',
+        name: 'vite-variableToFile_plugin',
+        apply: "build",
         async generateBundle(): Promise<any> {
             const jsonData = JSON.stringify(jsonobject);
-            return fs.writeFileSync(destpath, jsonData);
+            console.log(jsonData);
+           // return fs.writeFileSync(destpath, jsonData);
         }
     }
 }
-export default defineConfig((param) => {
-    const site = param.mode;
-    const isBuild = param.command === "build"
+export default defineConfig(({ command, mode }) => {
     const cwdPath = normalizePath(process.cwd())
     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
-    const sitePath = normalizePath(path.resolve(srcPath, site))
-    if (!fs.existsSync(sitePath)) {
-        const apps = fs.readdirSync(srcPath).filter(v => v.indexOf("app-") > -1);
-
-        throw new Error(apps.map(v => `pnpm run dev --mode ${v}`).join("\n"))
+    const sitePath = normalizePath(path.resolve(srcPath, mode))
+    const tsxPath = normalizePath(path.resolve(sitePath, "index.tsx"))
+    if (!fs.existsSync(tsxPath)) {
+        const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath,v, "index.tsx"))).map(v => `pnpm run dev --mode ${v}`);
+        throw new Error(apps.join("\n"))
     }
-    const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${packagejson.name}-${site}-build`))
-
-    console.log({ argv: process.argv, site, sitePath, isBuild, cwdPath, buildToPath })
+    const title= `${packagejson.name}_${mode}`
+    const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${title}_build`))
+    console.log({ command, cwdPath, srcPath, tsxPath, buildToPath })
     return {
-        // root: sitePath,
         server: { open: true },
         plugins: [
             react(),
+            //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
             htmlConfig({
-                title: site + packagejson.name,
+                title,
+                scripts: [
+                    {
+                        type: 'module',
+                        src: tsxPath.replace(cwdPath, ""),
+                    },
+                ],
             }),
             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
             // copyFileToFile_plugin(
@@ -92,7 +98,7 @@ export default defineConfig((param) => {
                 },
             },
             emptyOutDir: true,//打包前清空
-            //assetsDir: './',
+            assetsDir: './',
             outDir: buildToPath,
             sourcemap: false,
             rollupOptions: {

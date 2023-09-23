@@ -5,7 +5,7 @@ import useStore from "../../useStore"
 
 export default () => {
   const config = useStore(s => s.state.mcu00_dz003)
-  const log = useStore(s => s.state.mcu00_dz003_state?.frequency.log)
+  const log = useStore(s => s.state.mcu00_dz003State?.frequency.log)
   const [data, setdata] = useState<Array<{ x: number, y: number, name: string }>>([])
   useEffect(() => {
     const x = data.length / 6

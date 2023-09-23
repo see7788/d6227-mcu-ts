@@ -5,7 +5,7 @@ import { Space, Typography, Tooltip, InputNumber } from 'antd';
 const { Text } = Typography;
 const Ui: FC = () => {
     const config = useStore(s => s.state.mcu00_dz003)
-    const log = useStore(s=>s.state.mcu00_dz003_state?.frequency.log)||frequency_logdef
+    const log = useStore(s=>s.state.mcu00_dz003State?.frequency.log)||frequency_logdef
     const [open_bool, open_bool_set] = useState([false, false, false, false, false])
     const Reqbtn: FC<{
         configIndex: 1 | 2 | 3 | 4,

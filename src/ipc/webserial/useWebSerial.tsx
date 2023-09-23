@@ -54,7 +54,12 @@ class ResStream_analysis {
         controller.enqueue("flush");
     }
 }
-export default () => {
+export type use_t = {
+    msg: true | false;
+    connect: () => Promise<void>;
+    disconnect: () => Promise<void>;
+}
+export default (): use_t => {
     const [state, setState] = useState<{
         baudRate: number;
         port: any;// SerialPort | null;
@@ -70,7 +75,7 @@ export default () => {
     });
     const [msg, msg_set] = useState<true | false>(false)
     const res = useStore(s => s.res)
-    async function disconnect() {
+    const disconnect: use_t['disconnect'] = async () => {
         await state.writer!.close();
         await state.reader!.cancel();
         await state.readclose!.catch(console.log);
@@ -78,7 +83,7 @@ export default () => {
         msg_set(false)
         setState(s => ({ ...s, port: null, reader: null, writer: null, readclose: null }));
     }
-    async function connect() {
+    const connect:use_t["connect"] = async () => {
         try {
             const port = await (navigator as any).serial.requestPort();
             await port.open({ baudRate: 115200 });
