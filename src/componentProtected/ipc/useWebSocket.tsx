@@ -59,13 +59,7 @@ export default () => {
             })
         }
         webSocketObj.onmessage = e => {
-            const op = e.data
-            try {
-                const db = JSON.parse(op);
-                res(db)
-            } catch (ee) {
-                console.error({ c: "onmessage", op })
-            }
+            res( e.data)
         };
     }
     return { msg, connect, disconnect }

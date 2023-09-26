@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, memo, useState } from "react"
 import { Line } from '@ant-design/plots';
 import { task_config_t, frequency_log_t } from "./t"
 import useStore from "../../useStore"

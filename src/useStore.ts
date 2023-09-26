@@ -1,15 +1,15 @@
 import { immer } from 'zustand/middleware/immer'
 import { create } from "zustand"
 import _ from "lodash"
-export enum net_enum {
-    "ap", "sta", "eth", "ap+sta", "ap+eth"
+type globalmode_t = "mcu00";
+declare global {
+    interface Window {
+        globalmode: globalmode_t;
+        //store: typeof store
+    }
 }
-export type siteName_t = "mcu00"
-export enum onSendTo_enum {
-    "mcu00_serial", "mcu00_ws", "mcu00_wsClient", "mcu00_events"
-}
-type onSendTo_t = keyof typeof onSendTo_enum
-
+type netType_t = "ap" | "sta" | "eth" | "ap+sta" | "ap+eth";
+type onSendTo_t = keyof config_t; //`${"mcu00"}_${"serial" | "ws" | "events" | "wsClient"}`;
 export interface public_t {
     log: [s: onSendTo_t];
     dz003: [s: onSendTo_t, v0v1abs: number, v0v1absLoop: number, loopNumber: number, set0tick: number];
@@ -44,11 +44,7 @@ export interface public_t {
         taskindex: number;
     };
     ybl: [s: onSendTo_t];
-    net: {
-        use: keyof typeof net_enum,
-        ap: [ssid: string],
-        sta: [ssid: string, password: string]
-    };
+    net: [use: netType_t, ap: [ssid: string], sta: [ssid: string, password: string] ];
     serial: [s: onSendTo_t, BaudRate: number];
     ble: [s: onSendTo_t, macname: string];
     udp: [s: onSendTo_t, ip: string, port: string];
@@ -69,28 +65,11 @@ interface mcu00_t {
     mcu00_dz003: public_t['dz003'];
 }
 export const mcu00: mcu00_t = {
-    "mcu00_log": [
-        "mcu00_serial"
-    ],
-    "mcu00_serial": [
-        "mcu00_serial",
-        115200
-    ],
-    "mcu00_net": {
-        "use": "eth",
-        "ap": ["apname"],
-        "sta": ["shuzijia", "80508833"]
-    },
-    "mcu00_dz003": [
-        "mcu00_serial",
-        1000,
-        1000,
-        1000,
-        5000
-    ],
-    "mcu00_ybl": [
-        "mcu00_serial"
-    ]
+    "mcu00_log": ["mcu00_serial"],
+    "mcu00_serial": ["mcu00_serial", 115200],
+    "mcu00_net": ["eth", ["apname"], ["shuzijia", "80508833"]],
+    "mcu00_dz003": ["mcu00_serial", 1000, 1000, 1000, 5000],
+    "mcu00_ybl": ["mcu00_serial"]
 };
 interface config_t extends mcu00_t {
 
@@ -100,11 +79,13 @@ interface state_t extends config_t {
     mcu00_dz003State?: public_t["dz003State"];
 };
 // console.log(JSON.stringify(mcuConfig))
-interface Store {
-    res: <T extends keyof state_t >(op:
-        ["config_set", Pick<state_t, T> | Partial<state_t>] |
-        ["state_set", Pick<state_t, T> | Partial<state_t>]
-    ) => void
+interface Store_t {
+    state: state_t;
+    netType: Array<netType_t>;
+    netType_set: () => void;
+    onSendTo: Array<onSendTo_t>;
+    onSendTo_set: () => void;
+    res: (jsonstr: string) => void
     req: <T extends keyof config_t>(...op:
         ["state_get"] |
         ["config_get"] |
@@ -117,33 +98,42 @@ interface Store {
         ["dz003.laba_set", boolean] |
         ["dz003.deng_set", boolean]
     ) => Promise<void>;
-    state: state_t;
-    mcu00: {
-        onSendTo: Array<onSendTo_t>
-    };
 
 }
-const usestore = create<Store>()(immer<Store>((set, self) => {
+// console.log(import.meta.env)
+const usestore = create<Store_t>()(immer<Store_t>((set, self) => {
+    window.globalmode = import.meta.env.MODE as globalmode_t
+    const state = { ...mcu00 }
     return {
-        state: { ...mcu00 },
-        mcu00: {
-            onSendTo: [],
-            onSendTo_get() {
-                const db = Object.keys(self().state);
-                const c = Object.entries(onSendTo_enum)
-                    .filter(([k]) => isNaN(Number(k))).map(([k]) => k as unknown as keyof typeof onSendTo_enum)
-                    .filter(v => db.includes(v))
-                return c
-            },
+        state,
+        netType: [],
+        netType_set: () => {
+            const data: Store_t['netType'] = ["ap", "sta", "eth", "ap+sta", "ap+eth"]
+            set(s => {
+                s.netType = data;
+            })
         },
-        res: ([api, info]) => set(s => {
-            let res = "web use";
-            if (api === "config_set" || api === "state_set") {
-                s.state = { ...s.state, ...info }
-            } else {
-                res = 'web pass'
+        onSendTo: [],
+        onSendTo_set() {
+            return Object.keys(self().state).filter(v => {
+                if (v.startsWith(window.globalmode)) {
+                    return v.endsWith("mcu00") || v.endsWith("serial") || v.endsWith("ws") || v.endsWith("events")
+                }
+            });
+        },
+        res: (jsonstr) => set(s => {
+            try {
+                const [api, info] = JSON.parse(jsonstr);
+                let res = "web use";
+                if (api === "config_set" || api === "state_set") {
+                    s.state = { ...s.state, ...info }
+                } else {
+                    res = 'web pass'
+                }
+                console.log({ res, api, info });
+            } catch (e) {
+                console.error(jsonstr, e)
             }
-            console.log({ res, api, info });
         }),
         req: async (...req) => console.log("req def", ...req),
     }

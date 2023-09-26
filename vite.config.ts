@@ -39,7 +39,7 @@ function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
         async generateBundle(): Promise<any> {
             const jsonData = JSON.stringify(jsonobject);
             console.log(jsonData);
-           // return fs.writeFileSync(destpath, jsonData);
+            // return fs.writeFileSync(destpath, jsonData);
         }
     }
 }
@@ -49,12 +49,12 @@ export default defineConfig(({ command, mode }) => {
     const sitePath = normalizePath(path.resolve(srcPath, mode))
     const tsxPath = normalizePath(path.resolve(sitePath, "index.tsx"))
     if (!fs.existsSync(tsxPath)) {
-        const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath,v, "index.tsx"))).map(v => `pnpm run dev --mode ${v}`);
+        const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath, v, "index.tsx"))).map(v => `pnpm run dev --mode ${v}`);
         throw new Error(apps.join("\n"))
     }
-    const title= `${packagejson.name}_${mode}`
+    const title = `${packagejson.name}_${mode}`
     const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${title}_build`))
-    console.log({ command, cwdPath, srcPath, tsxPath, buildToPath })
+    console.log({ command, cwdPath, tsxPath, buildToPath, env: loadEnv(mode, process.cwd()) })
     return {
         server: { open: true },
         plugins: [

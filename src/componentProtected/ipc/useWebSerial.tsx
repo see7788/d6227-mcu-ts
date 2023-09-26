@@ -105,12 +105,7 @@ export default (): use_t => {
             while (true) {
                 const { value, done } = await reader.read()
                 if (value) {
-                    try {
-                        const db = JSON.parse(value);
-                        res(db)
-                    } catch (e) {
-                        console.error(value)
-                    }
+                    res(value)
                 }
                 if (done) {
                     reader.releaseLock();

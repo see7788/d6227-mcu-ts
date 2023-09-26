@@ -1,69 +1,75 @@
-import { lazy, FC, Suspense, Fragment, memo, useState } from 'react'
+import { lazy, FC, Suspense, Fragment, memo, useState, useEffect } from 'react'
 import { Descriptions, Collapse, theme, Button, Space, Input, Tooltip } from "antd"
-import { EditOutlined, LoadingOutlined } from "@ant-design/icons"
-import UseWebSerial from "../ipc/webserial/useWebSerial"
-import UseWebSocket from "../ipc/websocket/useWebSocket"
-import useStore, { siteName_t } from "../useStore"
-const BigBtn = lazy(() => import("../storeComponent/Bigbtn"))
-const Dz003 = lazy(() => import("../storeComponent/dz003/index"))
-import Net from "../storeComponent/Net"
-import Log from "../storeComponent/Log"
-const siteName:siteName_t="mcu00"
+import { EditOutlined, LoadingOutlined, CaretRightOutlined } from "@ant-design/icons"
+import UseWebSerial from "../componentProtected/ipc/useWebSerial"
+import UseWebSocket from "../componentProtected/ipc/useWebSocket"
+const BigBtn = lazy(() => import("../componentProtected/Bigbtn"))
+const McuState = lazy(() => import("../componentProtected/McuState"))
+const Net = lazy(() => import("../componentProtected/Net"))
+const Serial = lazy(() => import("../componentProtected/Serial"))
+const Log = lazy(() => import("../componentProtected/Log"))
+const Dz003Config = lazy(() => import("../componentProtected/dz003/config"))
+const Dz00State = lazy(() => import("../componentProtected/dz003/state"))
+const Dz00Log = lazy(() => import("../componentProtected/dz003/frequencylog"))
+
 const App: FC = () => {
     const useWebSerial = UseWebSerial()
     const useWebSocket = UseWebSocket()
-    const [activeKey, setactiveKey] = useState<string | string[]>()
-    const Connect = [
+    const [ip, setIp] = useState("")
+    //console.log(import.meta.env)
+    const IpcUi = [
         useWebSerial.msg === true ?
             <Button onClick={() => useWebSerial.disconnect()}>断开WebSerial</Button> :
-            <Button onClick={() => useWebSerial.connect()}>{
-                useWebSerial.msg ? <LoadingOutlined style={{ fontSize: '30px' }} spin /> : ""
-            }连接WebSerial
+            <Button onClick={useWebSerial.connect}>
+                连接WebSerial{useWebSerial.msg ? <LoadingOutlined style={{ fontSize: '30px' }} spin /> : ""}
             </Button>,
         useWebSocket.msg === true ?
             <Button onClick={() => useWebSocket.disconnect()}>断开WebSocket</Button> :
             <Input.Search
                 size="small"
+                defaultValue={ip}
                 placeholder="请输入ip地址"
-                onSearch={useWebSocket.connect}
+                onChange={c => setIp(c.currentTarget.value)}
+                onSearch={() => useWebSocket.connect(ip)}
                 enterButton={
                     <Tooltip title={useWebSocket.msg} open={!!useWebSocket.msg}>连接WebSocket</Tooltip>
                 } />
     ]
-    const Connect_memo = memo(() => <Space>{Connect.map((v, i) => <div key={i}>{v}</div>)}</Space>)
-    const IngInfo: FC = () => {
+    const IpcUi_memo = memo(() => <Space>{IpcUi.map((v, i) => <div key={i}>{v}</div>)}</Space>)
+    const InfoUi: FC = memo(() => {
         const { Panel } = Collapse;
         const { token } = theme.useToken();
+        const Login = () => <>Config LOGIN</>
         const uis = [
-            ["ipc", "通信状态", <Connect_memo />],
-            ["log","日志",<Log siteName={siteName}/>],
-            ["net", "网络状态", <Net siteName={siteName} />],
-            ["dz003", "水阀状态", <Dz003 />]
+            ["ipc", "通信状态", <Suspense fallback={<Login />}><IpcUi_memo /></Suspense>],
+            ["McuState", "mcu状态", <Suspense fallback={<Login />}><McuState /></Suspense>],
+            ["McuLog", "mcu日志设置", <Suspense fallback={<Login />}><Log /></Suspense>],
+            ["McuSerial", "mcu串口设置", <Suspense fallback={<Login />}><Serial /></Suspense>],
+            ["McuNet", "mcu网络设置", <Suspense fallback={<Login />}><Net /></Suspense>],
+            ["Dz003Config", "水阀配置", <Suspense fallback={<Login />}><Dz003Config /></Suspense>],
+            ["Dz00Log", "水阀日志", <Suspense fallback={<Login />}><Dz00Log /></Suspense>],
+            ["Dz00State", "水阀状态", <Suspense fallback={<Login />}><Dz00State /></Suspense>],
         ];
-        console.log(uis)
         return (
             <Collapse
                 bordered={false}
-                activeKey={activeKey}
-                onChange={setactiveKey}
-                // expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
                 style={{ background: token.colorBgContainer }}
             >
                 <Fragment>
                     {uis.map((c, i) => (
-                        <Panel key={i} header={c[0]} extra={c[1]}>
+                        <Panel key={i} header={c[1]} extra={c[0]}>
                             {c[2]}
                         </Panel>
                     ))}
                 </Fragment>
             </Collapse>
         )
-    }
-    const IngInfo_memo = memo(IngInfo)
+    })
+    // const InfoUi_memo = memo(InfoUi)
     return (
         <Fragment>
             <Suspense fallback={<>login</>}><BigBtn /></Suspense>
-            {(useWebSerial.msg === true || useWebSocket.msg === true) ? <IngInfo_memo /> : <Connect_memo />}
+            {(useWebSerial.msg === true || useWebSocket.msg === true) ? <InfoUi /> : <IpcUi_memo />}
         </Fragment>
     )
 }
