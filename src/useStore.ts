@@ -43,11 +43,11 @@ export interface public_t {
         locIp: string;
         taskindex: number;
     };
-    ybl: [s: onSendTo_t];
+    ybl: [s: onSendTo_t,Array<string>];
     net: [use: netType_t, ap: [ssid: string], sta: [ssid: string, password: string] ];
     serial: [s: onSendTo_t, BaudRate: number];
     ble: [s: onSendTo_t, macname: string];
-    udp: [s: onSendTo_t, ip: string, port: string];
+    udp: [s: onSendTo_t, port: string];
     events: [s: onSendTo_t, path: string];
     ws: [s: onSendTo_t, ip: string, port: number, path: string];
     http: [s: onSendTo_t, ip: string, port: number, path: string];
@@ -69,7 +69,7 @@ export const mcu00: mcu00_t = {
     "mcu00_serial": ["mcu00_serial", 115200],
     "mcu00_net": ["eth", ["apname"], ["shuzijia", "80508833"]],
     "mcu00_dz003": ["mcu00_serial", 1000, 1000, 1000, 5000],
-    "mcu00_ybl": ["mcu00_serial"]
+    "mcu00_ybl": ["mcu00_serial",[]]
 };
 interface config_t extends mcu00_t {
 
