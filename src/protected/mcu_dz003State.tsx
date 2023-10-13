@@ -1,11 +1,13 @@
 import  { FC } from "react"
 import { EditOutlined } from "@ant-design/icons"
 import { useHover } from 'react-use';
-import useStore from "../../useStore"
+import useStore from "../store"
 import { Button, Descriptions } from 'antd';
-const Ui: FC = () => {
-    const c = useStore(s => s.state.mcu00_dz003State)
-    const req = useStore(s => s.req)
+import store, { state_t } from "../store"
+const App: FC<{ statekey: `mcu${string}_dz003State`& keyof state_t}> = ({ statekey }) => {
+    console.log(statekey);
+    const req = store(s => s.req)!
+    const c = store(s => s.state[statekey])!;
     const booltoname = (bool: boolean) => bool ? "通电" : "断电"
     const [frequency] = useHover((hovered: any) => {
         const btn = <Button onClick={() => req("dz003.frequency_set", !c?.frequency.working)}>{booltoname(!c?.frequency.working)}</Button>
@@ -41,4 +43,4 @@ const Ui: FC = () => {
         return <>等待数据通知</>
     }
 }
-export default Ui
+export default App

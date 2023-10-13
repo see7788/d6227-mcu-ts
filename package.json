@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "esno src/store.t.ts 执行ts",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "vite --host 0.0.0.0 --port 6227",

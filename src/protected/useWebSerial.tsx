@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import useStore from "../../useStore"
+import useStore from "../store"
 type ResStream_analysisParam_t = "{}" | "\n"
 class ResStream_analysis {
     transform: (chunk: string, controller: any) => void | Promise<void>
@@ -55,7 +55,7 @@ class ResStream_analysis {
     }
 }
 export type use_t = {
-    msg: true | false;
+    msg: true | false | string;
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
 }
@@ -73,7 +73,7 @@ export default (): use_t => {
         writer: null,
         readclose: null
     });
-    const [msg, msg_set] = useState<true | false>(false)
+    const [msg, msg_set] = useState<use_t['msg']>(false)
     const res = useStore(s => s.res)
     const disconnect: use_t['disconnect'] = async () => {
         await state.writer!.close();
@@ -81,39 +81,37 @@ export default (): use_t => {
         await state.readclose!.catch(console.log);
         await state.port!.close();
         msg_set(false)
+        useStore.setState(s => {
+             s.req=undefined
+        })
         setState(s => ({ ...s, port: null, reader: null, writer: null, readclose: null }));
     }
-    const connect:use_t["connect"] = async () => {
-        try {
-            const port = await (navigator as any).serial.requestPort();
-            await port.open({ baudRate: 115200 });
-            console.log(port.getInfo(), await port.getSignals());
-            const writer = port.writable!.getWriter();
-            const decoder = new TextDecoderStream("utf-8", {});
-            const readclose = port.readable!.pipeTo(decoder.writable);
-            const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis('\n'))).getReader();
-            setState(s => ({ ...s, port, reader, readclose, writer }));
-            useStore.setState(s => {
-                msg_set(true)
-                s.req = async (...op) => {
-                    const db = JSON.stringify(op)
-                    return await writer.write(new TextEncoder().encode(db));
-                }
-                s.req("config_get");
-                s.req("state_get");
-            })
-            while (true) {
-                const { value, done } = await reader.read()
-                if (value) {
-                    res(value)
-                }
-                if (done) {
-                    reader.releaseLock();
-                }
+    const connect: use_t["connect"] = () => navigator?.serial?.requestPort().then(async port => {
+        await port.open({ baudRate: 115200 });
+        const writer = port.writable!.getWriter();
+        const decoder = new TextDecoderStream("utf-8", {});
+        const readclose = port.readable!.pipeTo(decoder.writable);
+        const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis('\n'))).getReader();
+        setState(s => ({ ...s, port, reader, readclose, writer }));
+        useStore.setState(s => {
+            s.req = async (...op) => {
+                console.log(op[0])
+                const db = JSON.stringify(op)
+                return await writer.write(new TextEncoder().encode(db));
             }
-        } catch (e) {
-            console.error(e)
+        })
+        msg_set(true)
+        while (true) {
+            const { value, done } = await reader.read()
+            if (value) {
+                res(value)
+            }
+            if (done) {
+                reader.releaseLock();
+            }
         }
-    }
+    }).catch(
+        e => msg_set(e.toString())
+    )
     return { msg, disconnect, connect }
 }

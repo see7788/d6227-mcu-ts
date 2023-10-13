@@ -10,4 +10,3 @@ export enum frequency_log_t {
     'v0v1absLoop',//累次差值关阀值
     'loopNumber',//设定次数
 }
-export const frequency_logdef = [0, 0, 0];

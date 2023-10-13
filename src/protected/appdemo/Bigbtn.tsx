@@ -1,8 +1,8 @@
 import { } from "react"
 import { FloatButton } from "antd"
-import useStore from "../useStore"
+import useStore from "../../store"
 export default () => {
-    const req = useStore(s => s.req)
+    const req = useStore(s => s.req)!
     return (
         <>
             <FloatButton

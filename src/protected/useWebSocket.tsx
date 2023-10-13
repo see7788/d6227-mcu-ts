@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import useStore from "../../useStore"
+import useStore from "../store"
 let webSocketObj: WebSocket;
 type ip_t = `${number}.${number}.${number}.${number}`
 function readyState(): Promise<void> {
@@ -30,6 +30,9 @@ export default () => {
         webSocketObj.onclose = () => { }
         webSocketObj.close();
         msg_set(false)
+        useStore.setState(s => {
+             s.req=undefined
+        })
     }
     const connect:use_t["connect"] =async (ip) => {
         if (tokenIp(ip) == undefined) {
@@ -51,11 +54,10 @@ export default () => {
             useStore.setState(s => {
                 msg_set(true);
                 s.req = async (...op) => {
+                    console.log(op[0])
                     const db = JSON.stringify(op)
                     return webSocketObj.send(db);
                 };
-                s.req("config_get");
-                s.req("state_get");
             })
         }
         webSocketObj.onmessage = e => {
