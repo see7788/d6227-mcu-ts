@@ -1,16 +1,12 @@
-import { useEffect, useState, FC } from 'react'
-import { Button, Space, Input, Tooltip } from "antd"
-import UseWebSerial from "./useWebSerial"
-import UseWebSocket from "./useWebSocket"
-import usestore from '../store'
-const App: FC<{ socketIp?: string }> = ({ socketIp }) => {
+import { lazy, FC, Suspense, Fragment, memo, useState, useEffect } from 'react'
+import { Descriptions, Collapse, theme, Button, Space, Input, Tooltip } from "antd"
+import UseWebSerial from "../useWebSerial"
+import UseWebSocket from "../useWebSocket"
+const App: FC<{ socketIp?: string }> = ({ socketIp="" }) => {
     const useWebSerial = UseWebSerial()
     const useWebSocket = UseWebSocket()
-    const [ip, setIp] = useState(socketIp || "")
-    const req = usestore(s => s.req)
-    useEffect(() => {
-        req&&req("init_get")
-    }, [req])
+    const [ip, setIp] = useState(socketIp)
+    //旋转<LoadingOutlined style={{ ...midstyle,fontSize: '80px' }} spin />
     return (
         <Space direction="vertical" style={{ width: '100%' }}>
             {useWebSerial.msg === true ?
@@ -19,9 +15,7 @@ const App: FC<{ socketIp?: string }> = ({ socketIp }) => {
                     <Tooltip title={useWebSerial.msg} open={!!useWebSerial.msg}>连接usb</Tooltip>
                 </Button>}
             {useWebSocket.msg === true ?
-                <Button onClick={() => {
-                    useWebSocket.disconnect()
-                }}>断开ws</Button> :
+                <Button onClick={() => { useWebSocket.disconnect() }}>断开ws</Button> :
                 <Input.Search
                     size='small'
                     maxLength={15}
@@ -35,4 +29,5 @@ const App: FC<{ socketIp?: string }> = ({ socketIp }) => {
         </Space>
     )
 }
+
 export default App

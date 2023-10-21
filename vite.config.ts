@@ -4,6 +4,7 @@ import packagejson from "./package.json"
 // import {mcu00} from "./src/useStore"
 // import { visualizer } from "rollup-plugin-visualizer"
 // import viteCompression from 'vite-plugin-compression';
+import { exec } from "child_process"
 import htmlConfig from 'vite-plugin-html-config';
 import path from "path"
 import fs from "fs"

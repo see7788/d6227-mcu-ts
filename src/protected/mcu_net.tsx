@@ -2,7 +2,6 @@ import { useState, FC, lazy } from 'react'
 import { Descriptions, Select, MenuProps, Dropdown, theme, Button, Space, Input, Tooltip } from "antd"
 import store, { state_t } from "../store"
 const App: FC<{ statekey: `mcu${string}_net` & keyof state_t }> = ({ statekey }) => {
-    console.log(statekey);
     const c = store(s => s.state[statekey])!
     const netType= ["ap", "sta", "eth", "ap+sta", "ap+eth"]
     const req = store(s => s.req)!
