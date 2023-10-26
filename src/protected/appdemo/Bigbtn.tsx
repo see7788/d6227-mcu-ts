@@ -1,10 +1,10 @@
-import { } from "react"
+import {Fragment } from "react"
 import { FloatButton } from "antd"
 import useStore from "../../store"
 export default () => {
     const req = useStore(s => s.req)!
     return (
-        <>
+        <Fragment>
             <FloatButton
                 description="保存重启"
                 shape="square"
@@ -21,6 +21,6 @@ export default () => {
                     req("restart")
                 }}
             />
-        </>
+        </Fragment>
     )
 }

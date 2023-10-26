@@ -1,4 +1,18 @@
+ type i18n_object_t<T extends object> = {
+    [K in keyof T]: T[K] extends Array<any>
+    ? i18n_Tuple_t<T[K]>
+    : T[K] extends object
+    ? i18n_object_t<T[K]>
+    : string;
+};
 
+type i18n_Tuple_t<T extends Array<any>> = {
+    [K in keyof T]: T[number] extends Array<any>
+    ? Array<string>
+    : T[number] extends object
+    ? i18n_object_t<T[number]>
+    : string;
+};
 export enum dz003_configindex_t {
     'sendTo_name' = 0,//转发方式
     'v0v1abs',//单次差值关阀值
@@ -59,44 +73,13 @@ export interface protected_t {
     mcu_routerIndexHtml: [ip: string, port: number];
     mcu_mqtt: [s: onSendTo_t, ip: string, port: number, path: string];
 }
-export interface config_t extends mode00_t { };
-export type onSendTo_t = keyof config_t; //"serial" | "ws" | "events" | "wsClient";
-export interface state_t extends Partial<config_t> { };
-type protectedI18n_object_t<T extends object> = {
-    [K in keyof T]: T[K] extends Array<any> ? protectedI18n_Tuple_t<T[K]> : T[K] extends object ? protectedI18n_object_t<T[K]> : string;
-};
-type protectedI18n_Tuple_t<T extends Array<any>> = 
-     T extends Array<any> ? Array<any> :T extends object ? protectedI18n_object_t<T> : string
- & Array<string>;
-export type mode00_t = Pick<protected_t, "mcu_state" | "mcu_dz003State" | "mcu_base" | "mcu_net" | "mcu_serial" | "mcu_ybl" | "mcu_dz003">
-const mode00_i18n: protectedI18n_object_t<mode00_t> = {
-    mcu_base: ["name", "version", "mode", "芯片", "mcu_serial"],
-    mcu_serial: ["mcu_serial", "115200", "串口"],
-    mcu_net: ["eth", [""], ["",""], "网络"],
-    mcu_ybl: ["mcu_serial",[], "动能传感"],
-    mcu_dz003: ["mcu_serial", "1000", "100000", "1000", "5000", "水阀"],
-    mcu_state: ["macId: string", [], "locIp", "taskindex"],
-    mcu_dz003State: {
-        frequency: {
-            working: "boolean",
-            value: [
-                "number",
-                "number"
-            ],
-            log: ["v0v1abs", "v0v1absLoop", "loopNumber"],
-            read: ["boolean", "boolean"]
-        },
-        fa: {
-            working: "boolean",
-            read: "boolean"
-        },
-        laba: {
-            working: "boolean",
-            read: "boolean"
-        },
-        deng: {
-            working: "boolean",
-            read: ["boolean", "boolean"]
-        },
-    }
+export type mode00State_t = Pick<protected_t, "mcu_state" | "mcu_dz003State" | "mcu_base" | "mcu_net" | "mcu_serial" | "mcu_ybl" | "mcu_dz003">
+export type mode00StateI18n_cn_t=i18n_object_t<mode00State_t>
+export type mode00Config_t = Omit<mode00State_t, "mcu_state" | "mcu_dz003State">
+export interface config_t extends mode00Config_t {
+
 }
+export interface state_t extends Partial<mode00State_t> {
+
+};
+export type onSendTo_t = keyof config_t; //"serial" | "ws" | "events" | "wsClient";

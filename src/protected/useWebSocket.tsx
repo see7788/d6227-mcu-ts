@@ -18,15 +18,10 @@ function tokenIp(ip: string): (ip_t | void) {
         return ip as ip_t;
     }
 }
-export type use_t = {
-    msg: true | false | "正在连接" | "ip地址格式错误" | "连接断开，正在重连..." | "连接成功，数据初始化成功";
-    connect: (ip: string) => Promise<void>;
-    disconnect: () => Promise<void>;
-}
 export default () => {
     const res = useStore(s => s.res)
-    const [msg, msg_set] = useState<use_t['msg']>(false)
-    const disconnect:use_t["disconnect"]=async()=> {
+    const [msg, msg_set] = useState<true | false | "正在连接" | "ip地址格式错误" | "连接断开，正在重连..." | "连接成功，数据初始化成功">(false)
+    const disconnect=async()=> {
         webSocketObj.onclose = () => { }
         webSocketObj.close();
         msg_set(false)
@@ -34,7 +29,7 @@ export default () => {
              s.req=undefined
         })
     }
-    const connect:use_t["connect"] =async (ip) => {
+    const connect =async (ip:string) => {
         if (tokenIp(ip) == undefined) {
             msg_set("ip地址格式错误")
             return

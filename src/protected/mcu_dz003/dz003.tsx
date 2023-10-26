@@ -1,26 +1,22 @@
 import { FC, useState } from "react"
 import { Space, Typography, Tooltip, InputNumber } from 'antd';
 const { Text, Paragraph } = Typography;
-import useStore, { state_t ,dz003_configindex_t} from '../../store'
+import OnSendTo from "../onSendTo"
+import useStore, { state_t, dz003_configindex_t } from '../../store'
 const Reqbtn: FC<{
     statekey: `mcu${string}_dz003` & keyof state_t,
-    configIndex: 1 | 2 | 3 | 4,
+    configIndex: dz003_configindex_t.v0v1abs | dz003_configindex_t.v0v1absLoop |dz003_configindex_t.loopNumber | dz003_configindex_t.set0tick,
     mintoken: number
     step: number
 }> = ({ statekey, configIndex, mintoken, step }) => {
-    const req = useStore(s => s.req)!
     const config = useStore(s => s.state[statekey])!;
+    const req = useStore(s => s.req)!
     const [bool, bool_set] = useState(false)
     const onChange = (v: number) => {
         const bool = v < mintoken
         bool_set(bool)
         if (!bool) {
-            useStore.setState(s => {
-                if (s.state[statekey] && s.state[statekey]?.[configIndex]) {
-                    (s.state[statekey] as any)[configIndex] = v;
-                    req("config_set", { mcu_dz003: s.state.mcu_dz003 })
-                }
-            })
+            req("config_set", { [statekey]: config.map((c, i) => i == configIndex ? v : c) as any })
         }
     }
     return (
@@ -36,15 +32,19 @@ const Reqbtn: FC<{
     )
 }
 const App: FC<{ statekey: `mcu${string}_dz003` & keyof state_t }> = ({ statekey }) => {
-    const req = useStore(s => s.req)!
     const config = useStore(s => s.state[statekey])!;
     const log = useStore(s => s.state[`${statekey}State`]?.frequency.log)
+    const req = useStore(s => s.req)!
+    const onClick = (v: any) => {
+        req("config_set", { [statekey]: config.map((c, i) => i == dz003_configindex_t.sendTo_name ? v : c) as any })
+    }
     return (
         <Space direction="vertical">
-            <Text type="secondary">
-                差值满足其一即断水
-                {config[dz003_configindex_t.sendTo_name]}
-            </Text>
+            <Space>
+                <Text type="secondary">日志转发至 </Text>
+                <OnSendTo vdef={config[dz003_configindex_t.sendTo_name]} vset={v => onClick(v)} />
+                <Text type="secondary">;如下任一条件触发断水 </Text>
+            </Space>
             <Text type="secondary">
                 条件A:
                 <Reqbtn configIndex={dz003_configindex_t.set0tick} statekey={statekey} mintoken={2000} step={500} />

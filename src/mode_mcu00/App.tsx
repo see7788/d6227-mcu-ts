@@ -2,7 +2,8 @@ import { lazy, FC, Suspense, Fragment, memo, useState, useEffect } from 'react'
 import { LoadingOutlined } from "@ant-design/icons"
 import { Space, Collapse, theme, Button, Input, Tooltip } from "antd"
 import useStore from "../store"
-import Ipc from "../protected/appdemo/Ipc"
+import UseWebSerial from "../protected/useWebSerial"
+import UseWebSocket from "../protected/useWebSocket"
 const BigBtn = lazy(() => import("../protected/appdemo/Bigbtn"))
 const McuState = lazy(() => import("../protected/mcu_state").then(
     module => ({ default: () => <module.default statekey={"mcu_state"} /> }))
@@ -11,7 +12,12 @@ const McuBase = lazy(() => import("../protected/mcu_base").then(
     module => ({ default: () => <module.default statekey={"mcu_base"} /> }))
 )
 const Net = lazy(() => import("../protected/mcu_net").then(
-    module => ({ default: () => <module.default statekey={"mcu_net"} /> }))
+    module => ({
+        default: () => <module.default
+            statekey={"mcu_net"}
+            netTypes={["ap", "sta", "eth", "ap+sta", "ap+eth"]}
+        />
+    }))
 )
 const Serial = lazy(() => import("../protected/mcu_serial").then(
     module => ({ default: () => <module.default statekey={"mcu_serial"} /> }))
@@ -25,23 +31,36 @@ const Dz00State = lazy(() => import("../protected/mcu_dz003/dz003State").then(
 const Dz00Log = lazy(() => import("../protected/mcu_dz003/dz003.log").then(
     module => ({ default: () => <module.default statekey={"mcu_dz003State"} /> }))
 )
-const midstyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    // height: '100vh',
-}
 const App: FC = () => {
+    const useWebSerial = UseWebSerial()
+    const useWebSocket = UseWebSocket()
     const { Panel } = Collapse;
     const { token } = theme.useToken();
     const req = useStore(s => s.req)
-    const Login = () => <LoadingOutlined style={{ ...midstyle, fontSize: '50px' }} spin />
+    const Login = () => <LoadingOutlined style={{ fontSize: '50px' }} spin />
     const { mcu_base, mcu_state, mcu_net, mcu_serial, mcu_dz003, mcu_dz003State, mcu_ybl } = useStore(s => s.state)
     useEffect(() => {
         if (req) {
             req("init_get")
         }
     }, [req])
+    const ipc = (<Space direction="vertical" style={{ width: '100%' }}>
+        {useWebSerial.msg === true ?
+            <Button block size='small' onClick={() => useWebSerial.disconnect()}>断开usb</Button> :
+            <Button block size='small' onClick={() => useWebSerial.connect()}>
+                <Tooltip title={useWebSerial.msg} open={!!useWebSerial.msg}>连接usb</Tooltip>
+            </Button>}
+        {useWebSocket.msg === true ?
+            <Button onClick={() => { useWebSocket.disconnect() }}>断开ws</Button> :
+            <Input.Search
+                size='small'
+                maxLength={15}
+                placeholder="请输入ip地址"
+                onSearch={useWebSocket.connect}
+                enterButton={
+                    <Tooltip title={useWebSocket.msg} open={!!useWebSocket.msg}>连接ws</Tooltip>
+                } />}
+    </Space>)
     const dz003 = mcu_dz003State ?
         <Space direction="vertical">
             <Dz003Config />
@@ -49,9 +68,9 @@ const App: FC = () => {
             <Dz00Log />
         </Space> :
         <Dz003Config />
-    const mcu = <Fragment><McuBase />{mcu_state&&<McuState />}</Fragment>
+    const mcu = <Fragment><McuBase />{mcu_state && <McuState />}</Fragment>
     const uis = [
-        ["通信状态", <Ipc />],
+        ["通信状态", ipc],
         mcu_base && [mcu_base[3], mcu],
         mcu_net && [mcu_net[3], <Net />],
         mcu_serial && [mcu_serial[2], <Serial />],
@@ -61,7 +80,7 @@ const App: FC = () => {
     ].filter((v): v is [string, JSX.Element] => {
         return Array.isArray(v) && v.length > 0
     })
-    return req ?
+    return req && mcu_base ?
         <Fragment>
             <Suspense fallback={<>login</>}><BigBtn /></Suspense>
             {
@@ -79,8 +98,15 @@ const App: FC = () => {
                     }
                 </Collapse>
             }
-        </Fragment>
-        :
-        <div style={{ ...midstyle, height: '100vh' }}> <Ipc /></div>
+        </Fragment> :
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            margin: 'auto',
+            width: "350px",
+            height: '100vh'
+        }}>
+            {req ? <><Login />等数据初始化</> : ipc}
+        </div>
 }
 export default App

@@ -1,24 +1,32 @@
 import { FC } from 'react'
-import { Descriptions } from "antd"
-import store, { state_t } from "../store"
-const App: FC<{ statekey: `mcu${string}_base`& keyof state_t}> = ({ statekey }) => {
-    const c = store(s => s.state[statekey])!
+import { Input, Descriptions } from "antd"
+import useStore, { state_t } from "../store"
+import OnSendTo from "./onSendTo"
+import { EditOutlined } from "@ant-design/icons"
+const App: FC<{ statekey: `mcu${string}_base` & keyof state_t }> = ({ statekey }) => {
+    const config = useStore(s => s.state[statekey])!
+    const [c0, c1, c2, c3, c4] = config;
+    const req = useStore(s => s.req)!
     return (
         <Descriptions>
-            <Descriptions.Item label={"packagename"}>
-                {c[0]}
+            <Descriptions.Item label={<>packagename</>}>
+                {c0}
             </Descriptions.Item>
-            <Descriptions.Item label={"packageversion"}>
-                {c[1]}
+            <Descriptions.Item label={<>packageversion</>}>
+                {c1}
             </Descriptions.Item>
-            <Descriptions.Item label={"votemode"}>
-                {c[2]}
+            <Descriptions.Item label={<>votemode</>} >
+                {c2}
             </Descriptions.Item>
-            <Descriptions.Item label={"asname"}>
-                {c[3]}
+            <Descriptions.Item label={<>asname<EditOutlined/></>}>
+                <Input
+                    value={c3}
+                    bordered={false}
+                    onChange={v => req("config_set", { [statekey]: [c0, c1, c2, v.currentTarget.value, c4] })}
+                />
             </Descriptions.Item>
-            <Descriptions.Item label={"logSendTo"}>
-                {c[4]}
+            <Descriptions.Item label={<>logSendTo<EditOutlined/></>}>
+                <OnSendTo vdef={c4} vset={v => req("config_set", { [statekey]: [c0, c1, c2, c3, v] })} />
             </Descriptions.Item>
         </Descriptions>
     )

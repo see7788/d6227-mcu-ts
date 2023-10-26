@@ -22,8 +22,7 @@
   },
   // "ts-node": { "esm": true },
   "include": [
-    "src/",
-    "env.d.ts", "src/mcu00_dz003",
+    "src/","env.d.ts", "src/mcu00_dz003",
   ],
   "references": [
     {

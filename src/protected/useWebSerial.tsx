@@ -54,12 +54,8 @@ class ResStream_analysis {
         controller.enqueue("flush");
     }
 }
-export type use_t = {
-    msg: true | false | string;
-    connect: () => Promise<void>;
-    disconnect: () => Promise<void>;
-}
-export default (): use_t => {
+
+export default () => {
     const [state, setState] = useState<{
         baudRate: number;
         port: any;// SerialPort | null;
@@ -73,34 +69,39 @@ export default (): use_t => {
         writer: null,
         readclose: null
     });
-    const [msg, msg_set] = useState<use_t['msg']>(false)
+    const [msg, msg_set] = useState<true | false | string>(false)
     const res = useStore(s => s.res)
-    const disconnect: use_t['disconnect'] = async () => {
+    const disconnect = async () => {
         await state.writer!.close();
         await state.reader!.cancel();
         await state.readclose!.catch(console.log);
         await state.port!.close();
         msg_set(false)
         useStore.setState(s => {
-             s.req=undefined
+            s.req = undefined
         })
         setState(s => ({ ...s, port: null, reader: null, writer: null, readclose: null }));
     }
-    const connect: use_t["connect"] = () => navigator?.serial?.requestPort().then(async port => {
+    const connect = () => navigator!.serial!.requestPort().then(async port => {
         await port.open({ baudRate: 115200 });
         const writer = port.writable!.getWriter();
         const decoder = new TextDecoderStream("utf-8", {});
         const readclose = port.readable!.pipeTo(decoder.writable);
         const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis('\n'))).getReader();
+        msg_set(true)
         setState(s => ({ ...s, port, reader, readclose, writer }));
         useStore.setState(s => {
             s.req = async (...op) => {
-                console.log(op[0])
+                if (op[0] === "config_set") {
+                    useStore.setState(s2 => {
+                        s2.state = { ...s2.state, ...op[1] }
+                    })
+                }
                 const db = JSON.stringify(op)
+                console.log(db)
                 return await writer.write(new TextEncoder().encode(db));
             }
         })
-        msg_set(true)
         while (true) {
             const { value, done } = await reader.read()
             if (value) {

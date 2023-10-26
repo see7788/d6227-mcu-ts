@@ -5,7 +5,7 @@ import UseWebSocket from "../useWebSocket"
 const App: FC<{ socketIp?: string }> = ({ socketIp="" }) => {
     const useWebSerial = UseWebSerial()
     const useWebSocket = UseWebSocket()
-    const [ip, setIp] = useState(socketIp)
+    console.log(useWebSerial.msg)
     //旋转<LoadingOutlined style={{ ...midstyle,fontSize: '80px' }} spin />
     return (
         <Space direction="vertical" style={{ width: '100%' }}>
@@ -19,10 +19,9 @@ const App: FC<{ socketIp?: string }> = ({ socketIp="" }) => {
                 <Input.Search
                     size='small'
                     maxLength={15}
-                    defaultValue={ip}
+                    defaultValue={socketIp}
                     placeholder="请输入ip地址"
-                    onChange={c => setIp(c.currentTarget.value)}
-                    onSearch={() => useWebSocket.connect(ip)}
+                    onSearch={() => useWebSocket.connect(socketIp)}
                     enterButton={
                         <Tooltip title={useWebSocket.msg} open={!!useWebSocket.msg}>连接ws</Tooltip>
                     } />}
