@@ -1,4 +1,4 @@
- type i18n_object_t<T extends object> = {
+type i18n_object_t<T extends object> = {
     [K in keyof T]: T[K] extends Array<any>
     ? i18n_Tuple_t<T[K]>
     : T[K] extends object
@@ -13,6 +13,7 @@ type i18n_Tuple_t<T extends Array<any>> = {
     ? i18n_object_t<T[number]>
     : string;
 };
+
 export enum dz003_configindex_t {
     'sendTo_name' = 0,//转发方式
     'v0v1abs',//单次差值关阀值
@@ -73,13 +74,15 @@ export interface protected_t {
     mcu_routerIndexHtml: [ip: string, port: number];
     mcu_mqtt: [s: onSendTo_t, ip: string, port: number, path: string];
 }
-export type mode00State_t = Pick<protected_t, "mcu_state" | "mcu_dz003State" | "mcu_base" | "mcu_net" | "mcu_serial" | "mcu_ybl" | "mcu_dz003">
-export type mode00StateI18n_cn_t=i18n_object_t<mode00State_t>
-export type mode00Config_t = Omit<mode00State_t, "mcu_state" | "mcu_dz003State">
-export interface config_t extends mode00Config_t {
+export type mode_mcu00_configKey_t = "mcu_base" | "mcu_net" | "mcu_serial" | "mcu_ybl" | "mcu_dz003"
+export type mode_mcu00_config_t = Pick<protected_t, mode_mcu00_configKey_t>
+export type mode_mcu00_state_t = Pick<protected_t, mode_mcu00_configKey_t | "mcu_state" | "mcu_dz003State">
+export type mode_mcu00_stateI18n_cn_t = i18n_object_t<mode_mcu00_state_t>
+export type mode_mcu00_stateI18nKey_cn_t = { [t in keyof mode_mcu00_stateI18n_cn_t]: string }
+export interface config_t extends mode_mcu00_config_t {
 
 }
-export interface state_t extends Partial<mode00State_t> {
+export interface state_t extends Partial<mode_mcu00_state_t> {
 
 };
 export type onSendTo_t = keyof config_t; //"serial" | "ws" | "events" | "wsClient";
