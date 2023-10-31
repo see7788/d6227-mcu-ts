@@ -45,12 +45,13 @@ function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
     }
 }
 export default defineConfig(({ command, mode }) => {
+    const tsxName="mode.tsx"
     const cwdPath = normalizePath(process.cwd())
     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
     const sitePath = normalizePath(path.resolve(srcPath, mode))
-    const tsxPath = normalizePath(path.resolve(sitePath, "index.tsx"))
+    const tsxPath = normalizePath(path.resolve(sitePath, tsxName))
     if (!fs.existsSync(tsxPath)) {
-        const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath, v, "index.tsx"))).map(v => `pnpm run dev --mode ${v}`);
+        const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath, v, tsxName))).map(v => `pnpm run dev --mode ${v}`);
         throw new Error(apps.join("\n"))
     }
     const title = `${packagejson.name}_${mode}`
@@ -116,3 +117,73 @@ export default defineConfig(({ command, mode }) => {
         },
     }
 })
+
+
+// export default defineConfig(({ command, mode }) => {
+//     const cwdPath = normalizePath(process.cwd())
+//     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
+//     const tsxPath = normalizePath(path.resolve(srcPath, `${mode}.tsx`))
+//     if (!fs.existsSync(tsxPath)) {
+//         const apps = fs.readdirSync(srcPath).filter(v=>v.indexOf("mode")===0&&v.indexOf(".tsx")).map(v => `pnpm run dev --mode ${v}`);
+//         throw new Error(apps.join("\n"))
+//     }
+//     const title = `${packagejson.name}_${mode}`
+//     const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${title}_build`))
+//     console.log({ command, cwdPath, tsxPath, buildToPath, env: loadEnv(mode, process.cwd()) })
+//     return {
+//         server: { open: true },
+//         plugins: [
+//             react(),
+//             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
+//             htmlConfig({
+//                 title,
+//                 scripts: [
+//                     {
+//                         type: 'module',
+//                         src: tsxPath.replace(cwdPath, ""),
+//                     },
+//                 ],
+//             }),
+//             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
+//             // copyFileToFile_plugin(
+//             //     path.resolve(srcPath, "config.json"),
+//             //     path.resolve(buildToPath, "config.json")
+//             // ),
+//             // viteCompression({ deleteOriginFile: true }),//压缩gzib
+//             // visualizer({
+//             //     filename: './stats.html',
+//             //     open: true, // 自动打开报告
+//             //     sourcemap: true,
+//             //     gzipSize: true,
+//             //     brotliSize: true,
+//             //     template: 'treemap' // 报告类型
+//             // })//代码分析报告
+//         ],
+//         resolve: {
+//             alias: {
+//                 //   '@d6141-ts-lib': '/lib'
+//             }
+//         },
+//         build: {
+//             minify: "terser",//清理垃圾
+//             terserOptions: {
+//                 compress: {
+//                     drop_console: true,//清console
+//                     drop_debugger: true,//清debugger
+//                 },
+//             },
+//             emptyOutDir: true,//打包前清空
+//             assetsDir: './',
+//             outDir: buildToPath,
+//             sourcemap: false,
+//             rollupOptions: {
+//                 input:tsxPath.replace(cwdPath, ""),
+//                 output: {
+//                     entryFileNames: '[name][hash:6].js',
+//                     chunkFileNames: '[name][hash:6].js',
+//                     assetFileNames: '[name][hash:6].[ext]',
+//                 },
+//             },
+//         },
+//     }
+// })

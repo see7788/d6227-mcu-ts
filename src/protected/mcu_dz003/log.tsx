@@ -1,9 +1,9 @@
 import { useEffect, memo, FC, useState } from "react"
 import { Line } from '@ant-design/plots';
-import useStore, { state_t, dz003_configindex_t,dz003_frequency_logindex_t} from '../../store'
-const App: FC<{ statekey: `mcu${string}_dz003State` & keyof state_t }> = memo(({ statekey }) => {
-  const config = useStore(s => s.state.mcu_dz003)!;
-  const log = useStore(s => s.state[statekey]?.frequency.log)
+import { dz003_configindex_t,dz003_frequency_logindex_t} from './t'
+const App: FC<{ statekey: `mcu${string}_dz003State` & keyof Window["state"] }> = memo(({ statekey }) => {
+  const config = window.useStore(s => s.state.mcu_dz003)!;
+  const log = window.useStore(s => s.state[statekey]?.frequency.log)
   const [data, setdata] = useState<Array<{ x: number, y: number, name: string }>>([])
   useEffect(() => {
     const x = data.length / 6

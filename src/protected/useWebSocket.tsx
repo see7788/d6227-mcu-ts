@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import useStore from "../store"
 let webSocketObj: WebSocket;
 type ip_t = `${number}.${number}.${number}.${number}`
 function readyState(): Promise<void> {
@@ -19,13 +18,13 @@ function tokenIp(ip: string): (ip_t | void) {
     }
 }
 export default () => {
-    const res = useStore(s => s.res)
+    const res = window.useStore(s => s.res)
     const [msg, msg_set] = useState<true | false | "正在连接" | "ip地址格式错误" | "连接断开，正在重连..." | "连接成功，数据初始化成功">(false)
     const disconnect=async()=> {
         webSocketObj.onclose = () => { }
         webSocketObj.close();
         msg_set(false)
-        useStore.setState(s => {
+        window.useStore.setState(s => {
              s.req=undefined
         })
     }
@@ -46,7 +45,7 @@ export default () => {
         }
         webSocketObj.onopen = async _ => {
             await readyState();
-            useStore.setState(s => {
+            window.useStore.setState(s => {
                 msg_set(true);
                 s.req = async (...op) => {
                     console.log(op[0])

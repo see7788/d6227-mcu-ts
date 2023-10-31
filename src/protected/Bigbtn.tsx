@@ -1,8 +1,7 @@
 import {Fragment } from "react"
 import { FloatButton } from "antd"
-import useStore from "../../store"
 export default () => {
-    const req = useStore(s => s.req)!
+    const req = window.useStore(s => s.req)!
     return (
         <Fragment>
             <FloatButton

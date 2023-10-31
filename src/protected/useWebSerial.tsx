@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import useStore from "../store"
 type ResStream_analysisParam_t = "{}" | "\n"
 class ResStream_analysis {
     transform: (chunk: string, controller: any) => void | Promise<void>
@@ -70,14 +69,14 @@ export default () => {
         readclose: null
     });
     const [msg, msg_set] = useState<true | false | string>(false)
-    const res = useStore(s => s.res)
+    const res = window.useStore(s => s.res)
     const disconnect = async () => {
         await state.writer!.close();
         await state.reader!.cancel();
         await state.readclose!.catch(console.log);
         await state.port!.close();
         msg_set(false)
-        useStore.setState(s => {
+        window.useStore.setState(s => {
             s.req = undefined
         })
         setState(s => ({ ...s, port: null, reader: null, writer: null, readclose: null }));
@@ -90,10 +89,10 @@ export default () => {
         const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis('\n'))).getReader();
         msg_set(true)
         setState(s => ({ ...s, port, reader, readclose, writer }));
-        useStore.setState(s => {
+        window.useStore.setState(s => {
             s.req = async (...op) => {
                 if (op[0] === "config_set") {
-                    useStore.setState(s2 => {
+                    window.useStore.setState(s2 => {
                         s2.state = { ...s2.state, ...op[1] }
                     })
                 }

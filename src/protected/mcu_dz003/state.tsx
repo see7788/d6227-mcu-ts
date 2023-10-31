@@ -2,10 +2,9 @@ import  { FC } from "react"
 import { EditOutlined } from "@ant-design/icons"
 import { useHover } from 'react-use';
 import { Button, Descriptions } from 'antd';
-import store, { state_t } from "../../store"
-const App: FC<{ statekey: `mcu${string}_dz003State`& keyof state_t}> = ({ statekey }) => {
-    const req = store(s => s.req)!
-    const c = store(s => s.state[statekey])!;
+const App: FC<{ statekey: `mcu${string}_dz003State`& keyof Window["state"]}> = ({ statekey }) => {
+    const req = window.useStore(s => s.req)!
+    const c = window.useStore(s => s.state[statekey])!;
     const booltoname = (bool: boolean) => bool ? "通电" : "断电"
     const [frequency] = useHover((hovered: any) => {
         const btn = <Button onClick={() => req("mcu_dz003.frequency_set", c.frequency.working)}>{booltoname(!c?.frequency.working)}</Button>

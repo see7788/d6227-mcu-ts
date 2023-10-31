@@ -1,8 +1,7 @@
 import { FC } from 'react'
 import { Descriptions } from "antd"
-import store, { state_t } from "../store"
-const App: FC<{ statekey: `mcu${string}_state`& keyof state_t}> = ({ statekey }) => {
-    const config = store(s => s.state[statekey])!
+const App: FC<{ statekey: `mcu${string}_state`& keyof Window["state"]}> = ({ statekey }) => {
+    const config = window.useStore(s => s.state[statekey])!
     return (
         <Descriptions>
             <Descriptions.Item label={"macId"}>

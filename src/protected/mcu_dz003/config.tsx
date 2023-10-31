@@ -2,15 +2,16 @@ import { FC, useState } from "react"
 import { Space, Typography, Tooltip, InputNumber } from 'antd';
 const { Text, Paragraph } = Typography;
 import OnSendTo from "../onSendTo"
-import useStore, { state_t, dz003_configindex_t } from '../../store'
+import  { dz003_configindex_t } from './t'
+type state_t=Window["state"]
 const Reqbtn: FC<{
     statekey: `mcu${string}_dz003` & keyof state_t,
     configIndex: dz003_configindex_t.v0v1abs | dz003_configindex_t.v0v1absLoop |dz003_configindex_t.loopNumber | dz003_configindex_t.set0tick,
     mintoken: number
     step: number
 }> = ({ statekey, configIndex, mintoken, step }) => {
-    const config = useStore(s => s.state[statekey])!;
-    const req = useStore(s => s.req)!
+    const config = window.useStore(s => s.state[statekey])!;
+    const req = window.useStore(s => s.req)!
     const [bool, bool_set] = useState(false)
     const onChange = (v: number) => {
         const bool = v < mintoken
@@ -32,9 +33,9 @@ const Reqbtn: FC<{
     )
 }
 const App: FC<{ statekey: `mcu${string}_dz003` & keyof state_t }> = ({ statekey }) => {
-    const config = useStore(s => s.state[statekey])!;
-    const log = useStore(s => s.state[`${statekey}State`]?.frequency.log)
-    const req = useStore(s => s.req)!
+    const config = window.useStore(s => s.state[statekey])!;
+    const log = window.useStore(s => s.state[`${statekey}State`]?.frequency.log)
+    const req = window.useStore(s => s.req)!
     const onClick = (v: any) => {
         req("config_set", { [statekey]: config.map((c, i) => i == dz003_configindex_t.sendTo_name ? v : c) as any })
     }
