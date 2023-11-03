@@ -40,7 +40,7 @@ const Dz00Log = lazy(() => import("../protected/mcu_dz003/log").then(
 )
 window.useStore = useStore
 const App: FC = () => {
-    const useWebSerial = UseWebSerial()
+    const useWebSerial = UseWebSerial(115200,"\n")
     const useWebSocket = UseWebSocket()
     const { Panel } = Collapse;
     const { token } = theme.useToken();

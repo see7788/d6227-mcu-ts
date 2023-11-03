@@ -20,7 +20,7 @@ export interface protected_t {
         packagename: string,
         packageversion: string,
         votemode: string,
-        logSendTo: onSendTo_t
+        logSendTo: onSendTo_t,
     ];
     mcu_state: [macId: string, egBit: Array<0 | 1>, locIp: string, taskindex: number];
     mcu_dz003: [s: onSendTo_t, v0v1abs: number, v0v1absLoop: number, loopNumber: number, set0tick: number];
@@ -50,7 +50,7 @@ export interface protected_t {
     mcu_ybl: [s: onSendTo_t, Array<string>];
     mcu_yblState: [s: onSendTo_t, info: {}];
     mcu_net: [use: string, ap: [ssid: string], sta: [ssid: string, password: string]];
-    mcu_serial: [s: onSendTo_t, BaudRate: number];
+    mcu_serial: [s: onSendTo_t, BaudRate: number,endStr:string];
     mcu_ble: [s: onSendTo_t, macname: string];
     mcu_udp: [s: onSendTo_t, port: string];
     mcu_events: [s: onSendTo_t, path: string];

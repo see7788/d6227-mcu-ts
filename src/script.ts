@@ -1,6 +1,6 @@
 //path.dirname(fileURLToPath(import.meta.url)
 
-import mode_mcu00 from "./mode_mcu00/store"
+import {setting as mode_mcu00} from "./mode_mcu00/store"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import fs from "node:fs"

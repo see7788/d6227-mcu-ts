@@ -1,5 +1,5 @@
 import { useState } from 'react'
-type ResStream_analysisParam_t = "{}" | "\n"
+type ResStream_analysisParam_t = "{}" | "\n" | "|||\n"
 class ResStream_analysis {
     transform: (chunk: string, controller: any) => void | Promise<void>
     container: string = ''
@@ -8,11 +8,11 @@ class ResStream_analysis {
     r = "}"
     ll = 0
     rl = 0
-    constructor(t: ResStream_analysisParam_t) {
-        if (t == "{}") {
+    constructor(public analysisStr: ResStream_analysisParam_t) {
+        if (analysisStr == "{}") {
             this.transform = this.json
         } else {
-            this.transform = this.n
+            this.transform = this.str
         }
     }
     async json(chunk: string, controller: any) {
@@ -37,12 +37,14 @@ class ResStream_analysis {
             }
         })
     }
-    async n(chunk: string, controller: any) {
+    async str(chunk: string, controller: any) {
+       // console.log(chunk)
         chunk.split("").map(v => {
-            if (v === "\n") {
+            if (v === this.analysisStr) {
                 controller.enqueue(this.container);
                 this.container = ""
             } else if (this.container.length > this.container_max) {
+                console.log("this.container.length > this.container_max", this.container)
                 this.container = ""
             } else {
                 this.container += v;
@@ -54,7 +56,7 @@ class ResStream_analysis {
     }
 }
 
-export default () => {
+export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
     const [state, setState] = useState<{
         baudRate: number;
         port: any;// SerialPort | null;
@@ -81,37 +83,40 @@ export default () => {
         })
         setState(s => ({ ...s, port: null, reader: null, writer: null, readclose: null }));
     }
-    const connect = () => navigator!.serial!.requestPort().then(async port => {
-        await port.open({ baudRate: 115200 });
-        const writer = port.writable!.getWriter();
-        const decoder = new TextDecoderStream("utf-8", {});
-        const readclose = port.readable!.pipeTo(decoder.writable);
-        const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis('\n'))).getReader();
-        msg_set(true)
-        setState(s => ({ ...s, port, reader, readclose, writer }));
-        window.useStore.setState(s => {
-            s.req = async (...op) => {
-                if (op[0] === "config_set") {
-                    window.useStore.setState(s2 => {
-                        s2.state = { ...s2.state, ...op[1] }
-                    })
+    const connect = async () => {
+        try {
+            const port = await navigator!.serial!.requestPort();
+            await port.open({ baudRate });
+            const writer = port.writable!.getWriter();
+            const decoder = new TextDecoderStream("utf-8", {});
+            const readclose = port.readable!.pipeTo(decoder.writable);
+            const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis(analysisParam))).getReader();
+            msg_set(true)
+            setState(s => ({ ...s, port, reader, readclose, writer }));
+            window.useStore.setState(s => {
+                s.req = async (...op) => {
+                    if (op[0] === "config_set") {
+                        window.useStore.setState(s2 => {
+                            s2.state = { ...s2.state, ...op[1] }
+                        })
+                    }
+                    const db = JSON.stringify(op)
+                    console.log(db)
+                    return await writer.write(new TextEncoder().encode(db));
                 }
-                const db = JSON.stringify(op)
-                console.log(db)
-                return await writer.write(new TextEncoder().encode(db));
+            })
+            while (true) {
+                const { value, done } = await reader.read()
+                if (value) {
+                    res(value)
+                }
+                if (done) {
+                    reader.releaseLock();
+                }
             }
-        })
-        while (true) {
-            const { value, done } = await reader.read()
-            if (value) {
-                res(value)
-            }
-            if (done) {
-                reader.releaseLock();
-            }
+        } catch (e) {
+            msg_set(JSON.stringify(e));
         }
-    }).catch(
-        e => msg_set(e.toString())
-    )
+    }
     return { msg, disconnect, connect }
 }
