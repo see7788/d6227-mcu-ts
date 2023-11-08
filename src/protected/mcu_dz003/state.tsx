@@ -1,43 +1,40 @@
-import  { FC } from "react"
+import React, { FC, useRef } from "react"
 import { EditOutlined } from "@ant-design/icons"
-import { useHover } from 'react-use';
-import { Button, Descriptions } from 'antd';
-const App: FC<{ statekey: `mcu${string}_dz003State`& keyof Window["state"]}> = ({ statekey }) => {
-    const req = window.useStore(s => s.req)!
-    const c = window.useStore(s => s.state[statekey])!;
-    const booltoname = (bool: boolean) => bool ? "通电" : "断电"
-    const [frequency] = useHover((hovered: any) => {
-        const btn = <Button onClick={() => req("mcu_dz003.frequency_set", c.frequency.working)}>{booltoname(!c?.frequency.working)}</Button>
-        return <div>{booltoname(!!c?.frequency.working)}<EditOutlined />{hovered && btn}</div>
-    });
-    const [fa] = useHover((hovered: any) => {
-        const btn = <Button onClick={() => req("mcu_dz003.fa_set", c.fa.working)}>{booltoname(!c?.fa.working)}</Button>
-        return <div>{booltoname(!!c?.fa.working)}<EditOutlined />{hovered && btn}</div>
-    });
-    const [laba] = useHover((hovered: any) => {
-        const btn = <Button onClick={() => req("mcu_dz003.laba_set", c?.laba.working)}>{booltoname(!c?.laba.working)}</Button>
-        return <div>{booltoname(!!c?.laba.working)}<EditOutlined />{hovered && btn}</div>
-    });
-    const [deng] = useHover((hovered: any) => {
-        const btn = <Button onClick={() => req("mcu_dz003.deng_set", c?.deng.working)}>{booltoname(!c?.deng.working)}</Button>
-        return <div>{booltoname(!!c?.deng.working)}<EditOutlined />{hovered && btn}</div>
-    });
-    if (c) {
-        return (
-            <Descriptions>
-                <Descriptions.Item label="脉冲状态">{frequency}</Descriptions.Item>
-                <Descriptions.Item label="脉冲数值">{c?.frequency.value[0]||0}:{c?.frequency.value[1]||0}</Descriptions.Item>
-                <Descriptions.Item label="脉冲差值">{c ? Math.abs(c.frequency.value[0] - c.frequency.value[1]) : 0}</Descriptions.Item>
-                
-                {/* <Descriptions.Item label="脉冲长时差值">{c["frequency"]["log"][TaskBconfigIndex_t.v0v1absLoop]}</Descriptions.Item> */}
-                
-                <Descriptions.Item label="水阀状态">{fa}</Descriptions.Item>
-                <Descriptions.Item label="喇叭状态">{laba}</Descriptions.Item>
-                <Descriptions.Item label="灯状态">{deng}</Descriptions.Item>
-            </Descriptions>
-        )
-    } else {
-        return <>等待数据通知</>
+import { Switch, Descriptions } from 'antd';
+import { useHover } from 'usehooks-ts'
+import { Space } from "antd"
+
+
+const App: FC<{ statekey: `mcu${string}_dz003State` & keyof Window["state_t"] }> = ({ statekey }) => {
+    const Component: FC<{ k: "fa" | "frequency" | "laba" | "deng" }> = ({ k }) => {
+        const config = window.useStore(s => s.state[statekey])!;
+        const v = config[k].working
+        const hoverRef = useRef(null)
+        const isHover = useHover(hoverRef)
+        const onClick = (bool: boolean) => req(`mcu_dz003State.${k}.set`, bool)
+        return <div ref={hoverRef}>{
+            isHover ?
+                <Switch checkedChildren="true" unCheckedChildren="false" checked={v} onClick={onClick} /> :
+                <Space>{String(v)}<EditOutlined /></Space>
+        }</div>
     }
+    const req = window.useStore(s => s.req)!
+    const i18n = window.useStore(s => s.state.i18n[statekey]);
+    return (
+        <Descriptions>
+            <Descriptions.Item label={i18n.fa.working}>
+                <Component k="fa" />
+            </Descriptions.Item>
+            <Descriptions.Item label={i18n.frequency.working}>
+                <Component k="frequency" />
+            </Descriptions.Item>
+            <Descriptions.Item label={i18n.laba.working}>
+                <Component k="laba" />
+            </Descriptions.Item>
+            <Descriptions.Item label={i18n.deng.working}>
+                <Component k="deng" />
+            </Descriptions.Item>
+        </Descriptions>
+    )
 }
 export default App

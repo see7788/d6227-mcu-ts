@@ -1,30 +1,30 @@
 //path.dirname(fileURLToPath(import.meta.url)
 
-import {setting as mode_mcu00} from "./mode_mcu00/store"
+import { setting as mode_mcu00_setting } from "./mode_mcu00/store"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import fs from "node:fs"
 const cmdParam = process.argv.slice(2).map(v => v.replace("--", "")).map(v => v.split("="));
-const { toDir, mode } = Object.fromEntries(cmdParam) as { mode: string, toDir: string };
-const echo = { mode, toDir };
-function createFile(config:any,i18nkey_cn:any,i18n_cn:any){
-    const data={config,i18nkey_cn,i18n_cn}
+function createFile(config: any, i18n: any) {
     try {
+        const data = { config, i18n }
+        echo = { ...echo, data: JSON.stringify(data, null, 2) };
         fs.mkdirSync(toDir, { recursive: true });
         fs.writeFileSync(path.resolve(toDir, "config.json"), JSON.stringify(config), { flag: 'w' });
-        fs.writeFileSync(path.resolve(toDir, "i18nk_cn.json"), JSON.stringify(i18nkey_cn), { flag: 'w' });
-        fs.writeFileSync(path.resolve(toDir, "i18nv_cn.json"), JSON.stringify(i18n_cn), { flag: 'w' });
-        console.log("js console", { ...echo, data: JSON.stringify(data, null, 2) });
-        process.exit(0);
+        fs.writeFileSync(path.resolve(toDir, "i18n.json"), JSON.stringify(i18n), { flag: 'w' });
     } catch (e) {
-        console.log("js console", { ...echo, data: JSON.stringify(data, null, 2), e });
+        console.error("js console", { ...echo, e });
         process.exit(1);
     }
 }
+const { toDir, mode} = Object.fromEntries(cmdParam) as { mode: string, toDir: string};
+let echo: any = { mode, toDir };
 if (mode == "mode_mcu00") {
-    const {config, i18nKey_cn,  i18ninfo_cn}=mode_mcu00(mode)
-    createFile(config, i18nKey_cn,  i18ninfo_cn);
+    const { config, i18n } = mode_mcu00_setting(mode)
+    createFile(config, i18n);
+    console.log("js console success", echo);
+    process.exit(0)
 } else {
-    console.error({ ...echo, e: "!data" });
+    console.error({ ...echo, e: "!mode" });
     process.exit(1)
 }

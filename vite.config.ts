@@ -1,6 +1,7 @@
 import { defineConfig, Plugin, loadEnv, UserConfigExport, normalizePath } from 'vite'
 import react from '@vitejs/plugin-react'
 import packagejson from "./package.json"
+import mkcert from'vite-plugin-mkcert'//https
 // import {mcu00} from "./src/useStore"
 // import { visualizer } from "rollup-plugin-visualizer"
 // import viteCompression from 'vite-plugin-compression';
@@ -58,7 +59,10 @@ export default defineConfig(({ command, mode }) => {
     const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${title}_build`))
     console.log({ command, cwdPath, tsxPath, buildToPath, env: loadEnv(mode, process.cwd()) })
     return {
-        server: { open: true },
+        server: { 
+            open: true,
+            // https:true
+         },
         plugins: [
             react(),
             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
@@ -71,6 +75,7 @@ export default defineConfig(({ command, mode }) => {
                     },
                 ],
             }),
+            // mkcert()
             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
             // copyFileToFile_plugin(
             //     path.resolve(srcPath, "config.json"),

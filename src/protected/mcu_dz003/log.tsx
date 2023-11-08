@@ -1,44 +1,23 @@
 import { useEffect, memo, FC, useState } from "react"
 import { Line } from '@ant-design/plots';
-import { dz003_configindex_t,dz003_frequency_logindex_t} from './t'
-const App: FC<{ statekey: `mcu${string}_dz003State` & keyof Window["state"] }> = memo(({ statekey }) => {
-  const config = window.useStore(s => s.state.mcu_dz003)!;
-  const log = window.useStore(s => s.state[statekey]?.frequency.log)
+const App: FC<{ statekey: `mcu${string}_dz003State` & keyof Window["state_t"] }> = memo(({ statekey }) => {
+  const log = window.useStore(s => s.state[statekey]?.frequency.value)
+  const i18n = window.useStore(s => s.state.i18n[statekey].frequency.value);
   const [data, setdata] = useState<Array<{ x: number, y: number, name: string }>>([])
   useEffect(() => {
-    const x = data.length / 6
-    if (config && log)
+    const x = data.length / 2
+    if (log)
       setdata(s => [
         ...s,
         {
           x,
-          y: log[dz003_configindex_t.v0v1abs],
-          name: "短时差值"
+          y: log[0],
+          name: i18n[0]
         },
         {
           x,
-          y: config[dz003_configindex_t.v0v1abs],
-          name: "短时设定"
-        },
-        {
-          x,
-          y: log[dz003_frequency_logindex_t.v0v1absLoop],
-          name: "长时差值"
-        },
-        {
-          x,
-          y: config[dz003_configindex_t.v0v1absLoop],
-          name: "长时设定"
-        },
-        {
-          x,
-          y: log[dz003_frequency_logindex_t.loopNumber],
-          name: "长循环数值"
-        },
-        {
-          x,
-          y: config[dz003_configindex_t.loopNumber],
-          name: "长循环设定"
+          y: log[0],
+          name: i18n[1]
         }
       ])
   }, [log])

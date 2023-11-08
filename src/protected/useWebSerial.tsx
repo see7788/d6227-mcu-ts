@@ -97,7 +97,8 @@ export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
                 s.req = async (...op) => {
                     if (op[0] === "config_set") {
                         window.useStore.setState(s2 => {
-                            s2.state = { ...s2.state, ...op[1] }
+                            const { mcu_state, mcu_dz003State, ...config } = s2.state
+                            s2.state = { ...config,...op[1] }
                         })
                     }
                     const db = JSON.stringify(op)

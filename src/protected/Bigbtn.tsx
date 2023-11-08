@@ -1,7 +1,9 @@
-import {Fragment } from "react"
+import { Fragment } from "react"
 import { FloatButton } from "antd"
 export default () => {
     const req = window.useStore(s => s.req)!
+    const state = window.useStore(s => s.state)
+    const { mcu_state, mcu_dz003State, ...config } = state
     return (
         <Fragment>
             <FloatButton
@@ -9,7 +11,7 @@ export default () => {
                 shape="square"
                 style={{ right: 70 }}
                 onClick={() => {
-                    req("config_toFile");
+                    req("config_toFile", config);
                 }}
             />
             <FloatButton

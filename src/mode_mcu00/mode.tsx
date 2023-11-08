@@ -5,7 +5,7 @@ import { state_t, useStore } from "./store"
 declare global {
     interface Window {
         useStore: typeof useStore;
-        state: state_t;
+        state_t: state_t;
     }
 }
 import createRoot from "../createApp"
@@ -40,13 +40,13 @@ const Dz00Log = lazy(() => import("../protected/mcu_dz003/log").then(
 )
 window.useStore = useStore
 const App: FC = () => {
-    const useWebSerial = UseWebSerial(115200,"\n")
+    const useWebSerial = UseWebSerial(115200, "\n")
     const useWebSocket = UseWebSocket()
     const { Panel } = Collapse;
     const { token } = theme.useToken();
     const req = window.useStore(s => s.req)
     const Login = () => <LoadingOutlined style={{ fontSize: '50px' }} spin />
-    const { i18n, mcu_base, mcu_state, mcu_net, mcu_serial, mcu_dz003, mcu_dz003State, mcu_ybl } = window.useStore(s => s.state)
+    const config = window.useStore(s => s.state)
     useEffect(() => {
         if (req) {
             req("init_get")
@@ -69,24 +69,23 @@ const App: FC = () => {
                     <Tooltip title={useWebSocket.msg} open={!!useWebSocket.msg}>连接ws</Tooltip>
                 } />}
     </Space>)
-    const dz003 = mcu_dz003State ?
+    const dz003 = config?.mcu_dz003State ?
         <Space direction="vertical">
             <Dz003Config />
             <Dz00State />
             <Dz00Log />
         </Space> :
         <Dz003Config />
-    const mcu = <Fragment><McuBase />{mcu_state && <McuState />}</Fragment>
-    const iy = i18n
-    const uis = i18n && i18n.cn && i18n.cn[0] ? [
+    const mcu = <Fragment><McuBase />{config?.mcu_state && <McuState />}</Fragment>
+    const uis = [
         ["通信状态", ipc],
-        mcu_base && [i18n.cn[0].mcu_base, mcu],
-        mcu_net && [i18n.cn[0].mcu_net, <Net />],
-        mcu_serial && [i18n.cn[0].mcu_serial, <Serial />],
-        mcu_dz003 && [i18n.cn[0].mcu_dz003, dz003],
-        mcu_ybl && [i18n.cn[0].mcu_ybl, <></>]
-    ] : []
-    return req && mcu_base ?
+        config?.mcu_base && ["mcu_base", mcu],
+        config?.mcu_net && ["mcu_net", <Net />],
+        config?.mcu_serial && ["mcu_serial", <Serial />],
+        config?.mcu_dz003 && ["mcu_dz003", dz003],
+        config?.mcu_ybl && ["mcu_ybl", <></>]
+    ] 
+    return req && config?.mcu_base ?
         <Fragment>
             <Suspense fallback={<>login</>}><BigBtn /></Suspense>
             {

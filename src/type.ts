@@ -13,7 +13,7 @@ type i18n_Tuple_t<T extends Array<any>> = {
     ? i18n_object_t<T[number]>
     : string;
 };
-type onSendTo_t =string; //"serial" | "ws" | "events" | "wsClient";
+type onSendTo_t = string; //"serial" | "ws" | "events" | "wsClient";
 
 export interface protected_t {
     mcu_base: [
@@ -23,7 +23,7 @@ export interface protected_t {
         logSendTo: onSendTo_t,
     ];
     mcu_state: [macId: string, egBit: Array<0 | 1>, locIp: string, taskindex: number];
-    mcu_dz003: [s: onSendTo_t, v0v1abs: number, v0v1absLoop: number, loopNumber: number, set0tick: number];
+    mcu_dz003: [tick: number, abs: number, tickBig: number, absBig: number, s: onSendTo_t];
     mcu_dz003State: {
         frequency: {
             working: boolean;
@@ -31,7 +31,6 @@ export interface protected_t {
                 number,
                 number
             ],
-            log: [v0v1abs: number, v0v1absLoop: number, loopNumber: number];
             read: [boolean, boolean]
         },
         fa: {
@@ -50,7 +49,7 @@ export interface protected_t {
     mcu_ybl: [s: onSendTo_t, Array<string>];
     mcu_yblState: [s: onSendTo_t, info: {}];
     mcu_net: [use: string, ap: [ssid: string], sta: [ssid: string, password: string]];
-    mcu_serial: [s: onSendTo_t, BaudRate: number,endStr:string];
+    mcu_serial: [s: onSendTo_t, BaudRate: number, endStr: string];
     mcu_ble: [s: onSendTo_t, macname: string];
     mcu_udp: [s: onSendTo_t, port: string];
     mcu_events: [s: onSendTo_t, path: string];
@@ -62,7 +61,7 @@ export interface protected_t {
     mcu_routerIndexHtml: [ip: string, port: number];
     mcu_mqtt: [s: onSendTo_t, ip: string, port: number, path: string];
 }
-export type dz003req=["mcu_dz003.fa_set", boolean] |
-["mcu_dz003.frequency_set", boolean] |
-["mcu_dz003.laba_set", boolean] |
-["mcu_dz003.deng_set", boolean]
+export type dz003req = ["mcu_dz003State.fa.set", boolean] |
+["mcu_dz003State.frequency.set", boolean] |
+["mcu_dz003State.laba.set", boolean] |
+["mcu_dz003State.deng.set", boolean]
