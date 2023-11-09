@@ -22,7 +22,7 @@
   },
   // "ts-node": { "esm": true },
   "include": [
-    "src/","env.d.ts",
+    "src/","env.d.ts", "src/protected/mcu_ybl/.t.ts",
   ],
   "references": [
     {

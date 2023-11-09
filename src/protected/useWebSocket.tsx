@@ -5,6 +5,7 @@ function readyState(): Promise<void> {
     return new Promise((ok) => {
         const loop = setInterval(() => {
             if (webSocketObj.readyState === 1) {
+                console.log(webSocketObj)
                 ok();
                 clearInterval(loop)
             }
@@ -19,29 +20,39 @@ function tokenIp(ip: string): (ip_t | void) {
 }
 export default () => {
     const res = window.useStore(s => s.res)
-    const [msg, msg_set] = useState<true | false | "正在连接" | "ip地址格式错误" | "连接断开，正在重连..." | "连接成功，数据初始化成功">(false)
-    const disconnect=async()=> {
+    const [iparr, iparrSet] = useState<Array<number>>([0, 0, 0, 0])
+    const [msg, msg_set] = useState<boolean | string>(false)
+    const iparr_set = (index: number, v: string) => iparrSet(iparr.map((c, i) => index === i ? Number(v) : c))
+    const disconnect = async () => {
         webSocketObj.onclose = () => { }
         webSocketObj.close();
         msg_set(false)
         window.useStore.setState(s => {
-             s.req=undefined
+            s.req = undefined
         })
     }
-    const connect =async (ip:string) => {
-        if (tokenIp(ip) == undefined) {
+    const connect = async () => {
+        const ip = iparr.join(".");
+        if (tokenIp(ip) == undefined||iparr.join(".")==="0.0.0.0") {
             msg_set("ip地址格式错误")
             return
         }
         msg_set("正在连接")
         const wsUri = "ws://" + ip + "/ws";
-        console.log(wsUri)
-        webSocketObj = new WebSocket(wsUri);
+        try {
+            webSocketObj = new WebSocket(wsUri);
+        } catch (e) {
+            msg_set(JSON.stringify(e))
+        }
+        webSocketObj.onerror = e => {
+            msg_set("连接有错"+JSON.stringify(e))
+            console.log(e)
+        };
         webSocketObj.onclose = _ => {
-            msg_set("连接断开，正在重连...")
             setTimeout(() => {
-                connect(ip);
-            }, 2000);
+                msg_set("连接断开，正在重连...")
+                connect();
+            }, 5000);
         }
         webSocketObj.onopen = async _ => {
             await readyState();
@@ -51,7 +62,7 @@ export default () => {
                     if (op[0] === "config_set") {
                         window.useStore.setState(s2 => {
                             const { mcu_state, mcu_dz003State, ...config } = s2.state
-                            s2.state = { ...config,...op[1] }
+                            s2.state = { ...config, ...op[1] }
                         })
                     }
                     console.log(op[0])
@@ -61,8 +72,9 @@ export default () => {
             })
         }
         webSocketObj.onmessage = e => {
-            res( e.data)
+            res(e.data)
         };
+
     }
-    return { msg, connect, disconnect }
+    return { msg, connect, disconnect, iparr, iparr_set }
 }

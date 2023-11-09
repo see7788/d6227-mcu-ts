@@ -1,0 +1,1 @@
+export type mcu_state_t = [macId: string, egBit: Array<0 | 1>, locIp: string, taskindex: number];

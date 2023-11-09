@@ -1,0 +1,1 @@
+export type mcu_net_t= [use: string, ap: [ssid: string], sta: [ssid: string, password: string]];

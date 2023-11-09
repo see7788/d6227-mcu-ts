@@ -1,6 +1,7 @@
 import { useEffect, memo, FC, useState } from "react"
 import { Line } from '@ant-design/plots';
-const App: FC<{ statekey: `mcu${string}_dz003State` & keyof Window["state_t"] }> = memo(({ statekey }) => {
+import {stateKey_t} from "../type.windows"
+const App: FC<{ statekey: stateKey_t<`mcu_dz003State`> }> = memo(({ statekey }) => {
   const log = window.useStore(s => s.state[statekey]?.frequency.value)
   const i18n = window.useStore(s => s.state.i18n[statekey].frequency.value);
   const [data, setdata] = useState<Array<{ x: number, y: number, name: string }>>([])

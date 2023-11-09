@@ -38,7 +38,7 @@ class ResStream_analysis {
         })
     }
     async str(chunk: string, controller: any) {
-       // console.log(chunk)
+        // console.log(chunk)
         chunk.split("").map(v => {
             if (v === this.analysisStr) {
                 controller.enqueue(this.container);
@@ -59,7 +59,7 @@ class ResStream_analysis {
 export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
     const [state, setState] = useState<{
         baudRate: number;
-        port: any;// SerialPort | null;
+        port: SerialPort | null;//any;// SerialPort | null;
         reader: ReadableStreamDefaultReader | null;
         writer: WritableStreamDefaultWriter | null;
         readclose: Promise<void> | null;
@@ -71,7 +71,7 @@ export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
         readclose: null
     });
     const [msg, msg_set] = useState<true | false | string>(false)
-    const res = window.useStore(s => s.res)
+    const res=window.useStore(s=>s.res)
     const disconnect = async () => {
         await state.writer!.close();
         await state.reader!.cancel();
@@ -98,7 +98,7 @@ export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
                     if (op[0] === "config_set") {
                         window.useStore.setState(s2 => {
                             const { mcu_state, mcu_dz003State, ...config } = s2.state
-                            s2.state = { ...config,...op[1] }
+                            s2.state = { ...config, ...op[1] }
                         })
                     }
                     const db = JSON.stringify(op)

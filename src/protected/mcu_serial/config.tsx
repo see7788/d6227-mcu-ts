@@ -1,8 +1,9 @@
-import { useState, FC, lazy } from 'react'
-import { Descriptions, Space, Input } from "antd"
+import { FC } from 'react'
+import { Descriptions, Space, Dropdown, InputNumber } from "antd"
 import { EditOutlined } from "@ant-design/icons"
-import OnSendTo from "./onSendTo"
-const App: FC<{ statekey: (`mcu_serial_${string}`|`mcu_serial`) & keyof Window["state_t"] }> = ({ statekey }) => {
+import OnSendTo from "../onSendTo"
+import { stateKey_t } from "../type.windows"
+const App: FC<{ statekey: stateKey_t<"mcu_serial"> }> = ({ statekey }) => {
     const config = window.useStore(s => s.state?.[statekey])!
     const [c0, c1, c2] = config;
     const req = window.useStore(s => s.req)!
@@ -16,15 +17,15 @@ const App: FC<{ statekey: (`mcu_serial_${string}`|`mcu_serial`) & keyof Window["
                 />
             </Descriptions.Item>
             <Descriptions.Item label={i18n[1]}>
-                <Space.Compact>
-                    <Input
-                        value={c1}
-                        bordered={false}
-                        suffix={<EditOutlined />}
-                        size="small"
-                        onChange={v => req("config_set", { [statekey]: [c0, Number(v.currentTarget.value), c2] })}
-                    />
-                </Space.Compact>
+                <Space>
+                    <Dropdown menu={{
+                        items: [115200, 9600].map((v, k) => ({ key: k, label: v })),
+                        onClick: ({ key }) => req("config_set", { [statekey]: [c0, Number(key), c2] })
+                    }}>
+                        <div> {c1}</div>
+                    </Dropdown>
+                    <EditOutlined />
+                </Space>
             </Descriptions.Item>
         </Descriptions>
     )

@@ -1,8 +1,8 @@
 
 import { FC } from 'react'
 import { Input, Descriptions } from "antd"
-import OnSendTo from "./onSendTo"
-import {stateKey_t} from "./state"
+import OnSendTo from "../onSendTo"
+import {stateKey_t} from "../type.windows"
 const App: FC<{ statekey:stateKey_t<"mcu_base">}> = ({ statekey }) => {
     const config =window.useStore(s => s.state[statekey])!
     const [c0, c1, c2, c3] = config;

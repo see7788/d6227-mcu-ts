@@ -3,9 +3,10 @@ import { EditOutlined } from "@ant-design/icons"
 import { Switch, Descriptions } from 'antd';
 import { useHover } from 'usehooks-ts'
 import { Space } from "antd"
+import { stateKey_t } from "../type.windows"
 
 
-const App: FC<{ statekey: `mcu${string}_dz003State` & keyof Window["state_t"] }> = ({ statekey }) => {
+const App: FC<{ statekey: stateKey_t<`mcu_dz003State`> }> = ({ statekey }) => {
     const Component: FC<{ k: "fa" | "frequency" | "laba" | "deng" }> = ({ k }) => {
         const config = window.useStore(s => s.state[statekey])!;
         const v = config[k].working

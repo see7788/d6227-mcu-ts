@@ -1,0 +1,1 @@
+export type mcu_serial_t=[onSendTo:string, BaudRate: number, endStr: string];

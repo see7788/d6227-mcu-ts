@@ -1,9 +1,9 @@
 import { useState, FC, lazy } from 'react'
 import { Descriptions, Select, MenuProps, Dropdown, theme, Button, Space, Input, Tooltip } from "antd"
 import { EditOutlined } from "@ant-design/icons"
-//谢谢老师，我查查gtp，可能一查就是好久，哈哈。老师，我再请教你一个泛型
+import {stateKey_t} from "../type.windows"
 const App: FC<{
-    statekey: (`mcu_net`|`mcu_net_${string}`) & keyof Window["state_t"]
+    statekey: stateKey_t<`mcu_net`>
     netTypes: Array<"ap" | "sta" | "eth" | "ap+sta" | "ap+eth">
 }> = ({ statekey, netTypes }) => {
     const config = window.useStore(s => s.state[statekey])!

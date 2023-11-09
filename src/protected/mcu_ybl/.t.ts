@@ -1,0 +1,1 @@
+export type mcu_ybl_t= [onSendTo:string, Array<string>]

@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { Descriptions } from "antd"
-const App: FC<{ statekey: (`mcu_state_${string}`|`mcu_state`) & keyof Window["state_t"] }> = ({ statekey }) => {
+import {stateKey_t} from "../type.windows"
+const App: FC<{ statekey:stateKey_t<"mcu_state"> }> = ({ statekey }) => {
     const config = window.useStore(s => s.state[statekey])!
     const i18n = window.useStore(s => s.state.i18n[statekey]);
     return (

@@ -46,7 +46,7 @@ function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
     }
 }
 export default defineConfig(({ command, mode }) => {
-    const tsxName="mode.tsx"
+    const tsxName="app.tsx"
     const cwdPath = normalizePath(process.cwd())
     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
     const sitePath = normalizePath(path.resolve(srcPath, mode))

@@ -1,6 +1,6 @@
 //path.dirname(fileURLToPath(import.meta.url)
 
-import { setting as mode_mcu00_setting } from "./mode_mcu00/store"
+import mode_mcu00 from "./app_mcu00/config"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import fs from "node:fs"
@@ -20,9 +20,8 @@ function createFile(config: any, i18n: any) {
 const { toDir, mode} = Object.fromEntries(cmdParam) as { mode: string, toDir: string};
 let echo: any = { mode, toDir };
 if (mode == "mode_mcu00") {
-    const { config, i18n } = mode_mcu00_setting(mode)
-    createFile(config, i18n);
-    console.log("js console success", echo);
+    createFile(mode_mcu00.config, mode_mcu00.i18n);
+    console.log("js console success", echo,mode_mcu00.config, mode_mcu00.i18n);
     process.exit(0)
 } else {
     console.error({ ...echo, e: "!mode" });
