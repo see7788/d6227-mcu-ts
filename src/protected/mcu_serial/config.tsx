@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Descriptions, Space, Dropdown, InputNumber } from "antd"
+import { Descriptions, Space, Dropdown } from "antd"
 import { EditOutlined } from "@ant-design/icons"
 import OnSendTo from "../onSendTo"
 import { stateKey_t } from "../type.windows"
@@ -27,6 +27,17 @@ const App: FC<{ statekey: stateKey_t<"mcu_serial"> }> = ({ statekey }) => {
                     <EditOutlined />
                 </Space>
             </Descriptions.Item>
+            {/* <Descriptions.Item label={i18n[2]}>
+                <Space>
+                    <Dropdown menu={{
+                        items: ["/n", "/r/n"].map((v, k) => ({ key: k, label: v })),
+                        onClick: ({ key }) => req("config_set", { [statekey]: [c0, c1, key] })
+                    }}>
+                        <div> {c2}</div>
+                    </Dropdown>
+                    <EditOutlined />
+                </Space>
+            </Descriptions.Item> */}
         </Descriptions>
     )
 }

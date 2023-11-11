@@ -101,7 +101,7 @@ export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
                             s2.state = { ...config, ...op[1] }
                         })
                     }
-                    const db = JSON.stringify(op)
+                    const db = JSON.stringify(op)+"\n"
                     console.log(db)
                     return await writer.write(new TextEncoder().encode(db));
                 }
