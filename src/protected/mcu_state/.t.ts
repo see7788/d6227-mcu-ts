@@ -1,1 +1,1 @@
-export type mcu_state_t = [macId: string, egBit: Array<0 | 1>, locIp: string, taskindex: number];
+export type mcu_state_t = [macId: string, egBit: Array<0 | 1>, ETHlocalIP: string,WiFilocalIP:string, taskindex: number];

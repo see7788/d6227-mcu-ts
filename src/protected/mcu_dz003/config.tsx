@@ -1,19 +1,9 @@
-import { FC, useRef } from "react"
-import { InputNumber, Descriptions, Space } from 'antd';
-import { EditOutlined } from "@ant-design/icons"
-import { useHover } from 'usehooks-ts'
+import { FC } from "react"
+import { InputNumber, Descriptions } from 'antd';
+import Component from "@public/Hover"
 import OnSendTo from "../onSendTo"
 import { stateKey_t } from "../type.windows"
 const App: FC<{ statekey: stateKey_t<"mcu_dz003"> }> = ({ statekey }) => {
-    const Component: FC<{ value: number, jsx: React.ReactElement }> = ({ value, jsx }) => {
-        const hoverRef = useRef(null)
-        const isHover = useHover(hoverRef)
-        return (
-            <div ref={hoverRef}>
-                <Space>{isHover ? jsx : value}<EditOutlined /></Space>
-            </div>
-        )
-    }
     const config = window.useStore(s => s.state[statekey])!;
     const i18n = window.useStore(s => s.state.i18n[statekey])!;
     const req = window.useStore(s => s.req)!
@@ -54,7 +44,7 @@ const App: FC<{ statekey: stateKey_t<"mcu_dz003"> }> = ({ statekey }) => {
                         value={config[2]}
                         bordered={false}
                         status="error"
-                        onChange={v => req("config_set", { [statekey]: [config[0], config[1], v as number, config[3], config[4]] })}
+                        onChange={v => req("config_set", { [statekey]: [config[0], config[1], v || 1000, config[3], config[4]] })}
                         step={100}
                         min={1000}
                         max={1000000}
@@ -68,7 +58,7 @@ const App: FC<{ statekey: stateKey_t<"mcu_dz003"> }> = ({ statekey }) => {
                         value={config[3]}
                         bordered={false}
                         status="error"
-                        onChange={v => req("config_set", { [statekey]: [config[0], config[1], config[2], v as number, config[4]] })}
+                        onChange={v => req("config_set", { [statekey]: [config[0], config[1], config[2], v || 100000, config[4]] })}
                         step={10}
                         min={10}
                         max={100000}
@@ -78,7 +68,7 @@ const App: FC<{ statekey: stateKey_t<"mcu_dz003"> }> = ({ statekey }) => {
             <Descriptions.Item label={i18n[4]}>
                 <OnSendTo
                     vdef={config[4]}
-                    vset={v => req("config_set", { [statekey]: [config[0], config[1], config[2], config[3], config[4]] })}
+                    vset={v => req("config_set", { [statekey]: [config[0], config[1], config[2], config[3], v] })}
                 />
             </Descriptions.Item>
         </Descriptions >

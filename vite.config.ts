@@ -93,7 +93,7 @@ export default defineConfig(({ command, mode }) => {
         ],
         resolve: {
             alias: {
-                //   '@d6141-ts-lib': '/lib'
+                '@public': '/src/public',
             }
         },
         build: {

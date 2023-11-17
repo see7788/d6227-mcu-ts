@@ -1,5 +1,5 @@
 import { useState } from 'react'
-let obj: WebSocket;
+let obj: EventSource;
 type ip_t = `${number}.${number}.${number}.${number}`
 function readyState(): Promise<void> {
     return new Promise((ok) => {
@@ -24,7 +24,6 @@ export default () => {
     const [msg, msg_set] = useState<boolean | string>(false)
     const iparr_set = (index: number, v: string) => iparrSet(iparr.map((c, i) => index === i ? Number(v) : c))
     const disconnect = async () => {
-        obj.onclose = () => { }
         obj.close();
         msg_set(false)
         window.useStore.setState(s => {
@@ -33,42 +32,26 @@ export default () => {
     }
     const connect = async () => {
         const ip = iparr.join(".");
-        if (tokenIp(ip) == undefined||iparr.join(".")==="0.0.0.0") {
+        if (tokenIp(ip) == undefined || iparr.join(".") === "0.0.0.0") {
             msg_set("ip地址格式错误")
             return
         }
         msg_set("正在连接")
         const wsUri = "ws://" + ip + "/ws";
         try {
-            obj = new WebSocket(wsUri);
+            obj = new EventSource(wsUri);
         } catch (e) {
             msg_set(JSON.stringify(e))
         }
         obj.onerror = e => {
-            msg_set("连接有错"+JSON.stringify(e))
+            msg_set("连接有错" + JSON.stringify(e))
             console.log(e)
         };
-        obj.onclose = _ => {
-            setTimeout(() => {
-                msg_set("连接断开，正在重连...")
-                connect();
-            }, 5000);
-        }
         obj.onopen = async _ => {
             await readyState();
             window.useStore.setState(s => {
                 msg_set(true);
-                s.req = async (...op) => {
-                    if (op[0] === "config_set") {
-                        window.useStore.setState(s2 => {
-                            const { mcu_state, mcu_dz003State, ...config } = s2.state
-                            s2.state = { ...config, ...op[1] }
-                        })
-                    }
-                    console.log(op[0])
-                    const db = JSON.stringify(op)
-                    return obj.send(db);
-                };
+                s.req = async (...op) =>console.log("EventSource不存在发送方法");
             })
         }
         obj.onmessage = e => {

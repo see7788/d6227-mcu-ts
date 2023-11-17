@@ -7,6 +7,9 @@
       "DOM.Iterable",
       "ESNext"
     ],
+    "paths": {
+      "@public/*": ["./src/public/*"]
+    },
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,

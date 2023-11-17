@@ -4,7 +4,7 @@ import { EditOutlined } from "@ant-design/icons"
 const App: FC<{ vdef: string, vset: (v: keyof Window["state_t"]) => void }> = ({ vdef, vset }) => {
     const state = window.useStore(s => s.state)
     const tos: Array<keyof Window["state_t"]> = (Object.keys(state).
-        filter(v => v.endsWith("serial") || v.endsWith("ws") || v.endsWith("events"))) as unknown as Array<any>
+        filter(v => v.endsWith("serial") || v.endsWith("ws") || v.endsWith("es"))) as unknown as Array<any>
     return (
         <Space>
             <Dropdown menu={{
