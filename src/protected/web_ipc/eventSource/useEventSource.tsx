@@ -1,5 +1,6 @@
 import { useState } from 'react'
 let obj: EventSource;
+import { res_t } from "../../type"
 type ip_t = `${number}.${number}.${number}.${number}`
 function readyState(): Promise<void> {
     return new Promise((ok) => {
@@ -18,17 +19,13 @@ function tokenIp(ip: string): (ip_t | void) {
         return ip as ip_t;
     }
 }
-export default () => {
-    const res = window.useStore(s => s.res)
+export default (res: res_t) => {
     const [iparr, iparrSet] = useState<Array<number>>([0, 0, 0, 0])
     const [msg, msg_set] = useState<boolean | string>(false)
-    const iparr_set = (index: number, v: string) => iparrSet(iparr.map((c, i) => index === i ? Number(v) : c))
+    const iparr_set = (index: number, v: number) => iparrSet(iparr.map((c, i) => index === i ? v : c))
     const disconnect = async () => {
         obj.close();
         msg_set(false)
-        window.useStore.setState(s => {
-            s.req = undefined
-        })
     }
     const connect = async () => {
         const ip = iparr.join(".");
@@ -49,10 +46,7 @@ export default () => {
         };
         obj.onopen = async _ => {
             await readyState();
-            window.useStore.setState(s => {
-                msg_set(true);
-                s.req = async (...op) =>console.log("EventSource不存在发送方法");
-            })
+            msg_set(true);
         }
         obj.onmessage = e => {
             res(e.data)

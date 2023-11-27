@@ -1,9 +1,11 @@
 import { useEffect, memo, FC, useState } from "react"
 import { Line } from '@ant-design/plots';
-import {stateKey_t} from "../type.windows"
-const App: FC<{ statekey: stateKey_t<`mcu_dz003State`> }> = memo(({ statekey }) => {
-  const log = window.useStore(s => s.state[statekey]?.frequency.value)
-  const i18n = window.useStore(s => s.state.i18n[statekey].frequency.value);
+import { mcu_dz003State_t, mcu_dz003StateI18n_t } from "./.t"
+const App: FC<{
+  config: mcu_dz003State_t;
+  i18n: mcu_dz003StateI18n_t;
+}> = memo(({ i18n, config }) => {
+  const log = config.frequency.value
   const [data, setdata] = useState<Array<{ x: number, y: number, name: string }>>([])
   useEffect(() => {
     const x = data.length / 2
@@ -13,12 +15,12 @@ const App: FC<{ statekey: stateKey_t<`mcu_dz003State`> }> = memo(({ statekey }) 
         {
           x,
           y: log[0],
-          name: i18n[0]
+          name: i18n.frequency.value[0]
         },
         {
           x,
           y: log[0],
-          name: i18n[1]
+          name: i18n.frequency.value[1]
         }
       ])
   }, [log])

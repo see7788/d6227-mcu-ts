@@ -1,9 +1,10 @@
 import { FC } from 'react'
 import { Descriptions } from "antd"
-import {stateKey_t} from "../type.windows"
-const App: FC<{ statekey:stateKey_t<"mcu_state"> }> = ({ statekey }) => {
-    const config = window.useStore(s => s.state[statekey])!
-    const i18n = window.useStore(s => s.state.i18n[statekey]);
+import { mcu_state_t ,mcu_stateI18n_t } from "./.t"
+const App: FC<{
+    config: mcu_state_t;
+    i18n: mcu_stateI18n_t;
+}> = ({ i18n, config }) => {
     return (
         <Descriptions>
             <Descriptions.Item label={i18n[0]}>

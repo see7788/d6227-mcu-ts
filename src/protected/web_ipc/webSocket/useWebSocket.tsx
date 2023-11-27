@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { reqIpcInit_t, res_t } from "../../type"
 let obj: WebSocket;
 type ip_t = `${number}.${number}.${number}.${number}`
 function readyState(): Promise<void> {
@@ -18,22 +19,20 @@ function tokenIp(ip: string): (ip_t | void) {
         return ip as ip_t;
     }
 }
-export default () => {
-    const res = window.useStore(s => s.res)
+export type param_t = [reqIpcInit: reqIpcInit_t, res: res_t]
+export default (...[reqIpcInit, res]: param_t) => {
     const [iparr, iparrSet] = useState<Array<number>>([0, 0, 0, 0])
     const [msg, msg_set] = useState<boolean | string>(false)
-    const iparr_set = (index: number, v: string) => iparrSet(iparr.map((c, i) => index === i ? Number(v) : c))
+    const iparr_set = (index: number, v: number) => iparrSet(iparr.map((c, i) => index === i ? v : c))
     const disconnect = async () => {
         obj.onclose = () => { }
         obj.close();
         msg_set(false)
-        window.useStore.setState(s => {
-            s.req = undefined
-        })
+        reqIpcInit();
     }
     const connect = async () => {
         const ip = iparr.join(".");
-        if (tokenIp(ip) == undefined||iparr.join(".")==="0.0.0.0") {
+        if (tokenIp(ip) == undefined || iparr.join(".") === "0.0.0.0") {
             msg_set("ip地址格式错误")
             return
         }
@@ -45,7 +44,7 @@ export default () => {
             msg_set(JSON.stringify(e))
         }
         obj.onerror = e => {
-            msg_set("连接有错"+JSON.stringify(e))
+            msg_set("连接有错" + JSON.stringify(e))
             console.log(e)
         };
         obj.onclose = _ => {
@@ -56,19 +55,10 @@ export default () => {
         }
         obj.onopen = async _ => {
             await readyState();
-            window.useStore.setState(s => {
-                msg_set(true);
-                s.req = async (...op) => {
-                    if (op[0] === "config_set") {
-                        window.useStore.setState(s2 => {
-                            const { mcu_state, mcu_dz003State, ...config } = s2.state
-                            s2.state = { ...config, ...op[1] }
-                        })
-                    }
-                    console.log(op[0])
-                    const db = JSON.stringify(op)
-                    return obj.send(db);
-                };
+            msg_set(true);
+            reqIpcInit((str) => {
+                obj.send(str);
+                console.log(str)
             })
         }
         obj.onmessage = e => {

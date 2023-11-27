@@ -1,5 +1,6 @@
 import { useState } from 'react'
-type ResStream_analysisParam_t = "{}" | "\n" | "|||\n"
+import { reqIpcInit_t, res_t } from "../../type"
+export type ResStream_analysisParam_t = "{}" | "\n" | "|||"
 class ResStream_analysis {
     transform: (chunk: string, controller: any) => void | Promise<void>
     container: string = ''
@@ -55,8 +56,15 @@ class ResStream_analysis {
         controller.enqueue("flush");
     }
 }
-
-export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
+export type param_t = [
+    baudRate: number,
+    analysisParam: ResStream_analysisParam_t,
+    reqIpcInit: reqIpcInit_t,
+    res: res_t
+]
+export default (
+    ...[baudRate, analysisParam, reqIpcInit, res]: param_t
+) => {
     const [state, setState] = useState<{
         baudRate: number;
         port: SerialPort | null;//any;// SerialPort | null;
@@ -71,17 +79,14 @@ export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
         readclose: null
     });
     const [msg, msg_set] = useState<true | false | string>(false)
-    const res=window.useStore(s=>s.res)
     const disconnect = async () => {
         await state.writer!.close();
         await state.reader!.cancel();
         await state.readclose!.catch(console.log);
         await state.port!.close();
-        msg_set(false)
-        window.useStore.setState(s => {
-            s.req = undefined
-        })
         setState(s => ({ ...s, port: null, reader: null, writer: null, readclose: null }));
+        msg_set(false)
+        reqIpcInit();
     }
     const connect = async () => {
         try {
@@ -91,20 +96,12 @@ export default (baudRate: number, analysisParam: ResStream_analysisParam_t) => {
             const decoder = new TextDecoderStream("utf-8", {});
             const readclose = port.readable!.pipeTo(decoder.writable);
             const reader = decoder.readable.pipeThrough(new TransformStream(new ResStream_analysis(analysisParam))).getReader();
-            msg_set(true)
             setState(s => ({ ...s, port, reader, readclose, writer }));
-            window.useStore.setState(s => {
-                s.req = async (...op) => {
-                    if (op[0] === "config_set") {
-                        window.useStore.setState(s2 => {
-                            const { mcu_state, mcu_dz003State, ...config } = s2.state
-                            s2.state = { ...config, ...op[1] }
-                        })
-                    }
-                    const db = JSON.stringify(op)+"\n"
-                    console.log(db)
-                    return await writer.write(new TextEncoder().encode(db));
-                }
+            msg_set(true)
+            reqIpcInit((str) => {
+                str += "\n"
+                console.log(str)
+                writer.write(new TextEncoder().encode(str));
             })
             while (true) {
                 const { value, done } = await reader.read()

@@ -2,27 +2,29 @@ import { FC } from 'react'
 import { Descriptions, Space, Dropdown } from "antd"
 import { EditOutlined } from "@ant-design/icons"
 import OnSendTo from "../onSendTo"
-import { stateKey_t } from "../type.windows"
-const App: FC<{ statekey: stateKey_t<"mcu_serial"> }> = ({ statekey }) => {
-    const config = window.useStore(s => s.state?.[statekey])!
-    const [c0, c1, c2] = config;
-    const req = window.useStore(s => s.req)!
-    const i18n = window.useStore(s => s.state.i18n[statekey]);
+import {mcu_serialI18n_t, mcu_serial_t,mcu_serialI18n } from "./.t"
+const App: FC<{
+    config: mcu_serial_t;
+    i18n: mcu_serialI18n_t;
+    sendTos: Array<string>,
+    set: (...op: mcu_serial_t) => void;
+}> = ({ i18n=mcu_serialI18n, config, set ,sendTos}) => {
     return (
         <Descriptions>
             <Descriptions.Item label={i18n[0]}>
                 <OnSendTo
-                    vdef={c0}
-                    vset={v => req("config_set", { [statekey]: [v as any, c1, c2] })}
+                sendTos={sendTos}
+                    vdef={config[0]}
+                    vset={v => set(v as any, config[1], config[2])}
                 />
             </Descriptions.Item>
             <Descriptions.Item label={i18n[1]}>
                 <Space>
                     <Dropdown menu={{
-                        items: [115200, 9600].map((v, k) => ({ key: k, label: v })),
-                        onClick: ({ key }) => req("config_set", { [statekey]: [c0, Number(key), c2] })
+                        items: [115200, 9600].map((v, k) => ({ label: v, key: k })),
+                        onClick: ({ key }) => set(config[0], Number(key), config[2])
                     }}>
-                        <div> {c1}</div>
+                        <div> {config[1]}</div>
                     </Dropdown>
                     <EditOutlined />
                 </Space>
@@ -30,10 +32,10 @@ const App: FC<{ statekey: stateKey_t<"mcu_serial"> }> = ({ statekey }) => {
             {/* <Descriptions.Item label={i18n[2]}>
                 <Space>
                     <Dropdown menu={{
-                        items: ["/n", "/r/n"].map((v, k) => ({ key: k, label: v })),
-                        onClick: ({ key }) => req("config_set", { [statekey]: [c0, c1, key] })
+                        items: analysis.map((v) => ({ key: v, label: v })),
+                        onClick: ({ key }) => req("config_set", { [statekey]: [config[0], config[1], key] })
                     }}>
-                        <div> {c2}</div>
+                        <div>&nbsp;{config[2].replace("\n","\\n")}&nbsp;</div>
                     </Dropdown>
                     <EditOutlined />
                 </Space>

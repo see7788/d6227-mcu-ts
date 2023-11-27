@@ -1,14 +1,12 @@
 import { FC } from 'react'
 import { Dropdown, Space } from "antd"
 import { EditOutlined } from "@ant-design/icons"
-const App: FC<{ vdef: string, vset: (v: keyof Window["state_t"]) => void }> = ({ vdef, vset }) => {
-    const state = window.useStore(s => s.state)
-    const tos: Array<keyof Window["state_t"]> = (Object.keys(state).
-        filter(v => v.endsWith("serial") || v.endsWith("ws") || v.endsWith("es"))) as unknown as Array<any>
+const App: FC<{ sendTos: Array<string>, vdef: string, vset: (v: string) => void }> = ({ sendTos, vdef, vset }) => {
+    const tos= (sendTos.filter(v => v.startsWith("mcu_serial") || v.startsWith("mcu_wsServer") || v.startsWith("mcu_esServer"))) as unknown as Array<any>
     return (
         <Space>
             <Dropdown menu={{
-                items: tos.map((v, k) => ({ key: k, label: v })),
+                items: tos.map((v, k) => ({ label: v, key: k })),
                 onClick: ({ key }) => vset(tos[key as any])
             }}>
                 <div> {vdef}</div>

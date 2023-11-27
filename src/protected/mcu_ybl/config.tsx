@@ -1,15 +1,22 @@
 import { FC } from 'react'
 import { Descriptions, InputNumber } from "antd"
-import Hover from "@public/Hover"
-import { stateKey_t } from "../type.windows"
-const App: FC<{ statekey: stateKey_t<"mcu_ybl"> }> = ({ statekey }) => {
-    const config = window.useStore(s => s.state[statekey])!
-    const i18n = window.useStore(s => s.state.i18n[statekey]);
-    const req = window.useStore(s => s.req)!
+import Hover from "@/public/HoverEdit"
+import OnSendTo from "../onSendTo"
+import { mcu_ybl_t,mcu_yblI18n_t} from "./.t"
+const App: FC<{
+    config: mcu_ybl_t;
+    sendTos: Array<string>,
+    i18n: mcu_yblI18n_t;
+    set: (...op: mcu_ybl_t) => void;
+}> = ({ i18n, config, set, sendTos }) => {
     return (
         <Descriptions>
             <Descriptions.Item label={i18n[0]}>
-                {config[0]}
+                <OnSendTo
+                    sendTos={sendTos}
+                    vdef={config[0]}
+                    vset={v => set(v as any, config[1], config[2], config[3])}
+                />
             </Descriptions.Item>
             <Descriptions.Item label={i18n[1]}>
                 {JSON.stringify(config[1])}
@@ -21,7 +28,7 @@ const App: FC<{ statekey: stateKey_t<"mcu_ybl"> }> = ({ statekey }) => {
                         value={config[2]}
                         bordered={false}
                         status="error"
-                        onChange={v => req("config_set", { [statekey]: [config[0], config[1],v||0, config[3]] })}
+                        onChange={v => set(config[0], config[1], v || 0, config[3])}
                         step={300}
                         min={300}
                     />
@@ -34,7 +41,7 @@ const App: FC<{ statekey: stateKey_t<"mcu_ybl"> }> = ({ statekey }) => {
                         value={config[3]}
                         bordered={false}
                         status="error"
-                        onChange={v => req("config_set", { [statekey]: [config[0], config[1], config[2],v||3000] })}
+                        onChange={v => set(config[0], config[1], config[2], v || 3000)}
                         step={100}
                         min={3000}
                     />

@@ -1,7 +1,18 @@
-import { defineConfig, Plugin, loadEnv, UserConfigExport, normalizePath } from 'vite'
+import {
+    defineConfig,
+    Plugin,
+    loadEnv,
+    UserConfigExport,
+    normalizePath,
+    createServer
+} from 'vite'
+import { resolve } from "node:path"
 import react from '@vitejs/plugin-react'
 import packagejson from "./package.json"
-import mkcert from'vite-plugin-mkcert'//https
+import { fileURLToPath } from 'node:url'
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+// import https from 'vite-plugin-mkcert'//https
+import https from "@vitejs/plugin-basic-ssl"//https
 // import {mcu00} from "./src/useStore"
 // import { visualizer } from "rollup-plugin-visualizer"
 // import viteCompression from 'vite-plugin-compression';
@@ -45,8 +56,10 @@ function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
         }
     }
 }
+const { outDir } = Object.fromEntries(process.argv.slice(2).map(v => v.replace("--", "")).map(v => v.split("="))) as { mode: string, outDir: string };
+
 export default defineConfig(({ command, mode }) => {
-    const tsxName="app.tsx"
+    const tsxName = "app.tsx"
     const cwdPath = normalizePath(process.cwd())
     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
     const sitePath = normalizePath(path.resolve(srcPath, mode))
@@ -55,17 +68,19 @@ export default defineConfig(({ command, mode }) => {
         const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath, v, tsxName))).map(v => `pnpm run dev --mode ${v}`);
         throw new Error(apps.join("\n"))
     }
-    const title = `${packagejson.name}_${mode}`
-    const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${title}_build`))
-    console.log({ command, cwdPath, tsxPath, buildToPath, env: loadEnv(mode, process.cwd()) })
+    const title = `${packagejson.name}-${mode}`
+    const buildToPath = normalizePath(outDir || path.resolve(cwdPath, `${title}-build`))
+    console.log({ command, cwdPath, tsxPath, title,buildToPath, env: loadEnv(mode, process.cwd()) })
     return {
-        server: { 
+        server: {
             open: true,
-            // https:true
-         },
+            https: true,
+            proxy: {
+                '/api': 'http://localhost:3000'
+            }
+        },
         plugins: [
             react(),
-            //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
             htmlConfig({
                 title,
                 scripts: [
@@ -75,7 +90,7 @@ export default defineConfig(({ command, mode }) => {
                     },
                 ],
             }),
-            // mkcert()
+            https()
             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
             // copyFileToFile_plugin(
             //     path.resolve(srcPath, "config.json"),
@@ -93,7 +108,7 @@ export default defineConfig(({ command, mode }) => {
         ],
         resolve: {
             alias: {
-                '@public': '/src/public',
+                '@': resolve(__dirname, './src/'),
             }
         },
         build: {
@@ -109,10 +124,7 @@ export default defineConfig(({ command, mode }) => {
             outDir: buildToPath,
             sourcemap: false,
             rollupOptions: {
-                // input: {
-                //     main: 'src/main.js',
-                //     admin: 'src/admin.js',
-                // },
+                //input: './src/mcu00_node/app.ts',
                 output: {
                     entryFileNames: '[name][hash:6].js',
                     chunkFileNames: '[name][hash:6].js',
@@ -122,73 +134,3 @@ export default defineConfig(({ command, mode }) => {
         },
     }
 })
-
-
-// export default defineConfig(({ command, mode }) => {
-//     const cwdPath = normalizePath(process.cwd())
-//     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
-//     const tsxPath = normalizePath(path.resolve(srcPath, `${mode}.tsx`))
-//     if (!fs.existsSync(tsxPath)) {
-//         const apps = fs.readdirSync(srcPath).filter(v=>v.indexOf("mode")===0&&v.indexOf(".tsx")).map(v => `pnpm run dev --mode ${v}`);
-//         throw new Error(apps.join("\n"))
-//     }
-//     const title = `${packagejson.name}_${mode}`
-//     const buildToPath = normalizePath(process.argv.includes('--outDir') ? process.argv[process.argv.indexOf('--outDir') + 1] : path.resolve(cwdPath, `${title}_build`))
-//     console.log({ command, cwdPath, tsxPath, buildToPath, env: loadEnv(mode, process.cwd()) })
-//     return {
-//         server: { open: true },
-//         plugins: [
-//             react(),
-//             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
-//             htmlConfig({
-//                 title,
-//                 scripts: [
-//                     {
-//                         type: 'module',
-//                         src: tsxPath.replace(cwdPath, ""),
-//                     },
-//                 ],
-//             }),
-//             //variableToFile_plugin(mcu00,path.resolve(buildToPath, "config.json")),
-//             // copyFileToFile_plugin(
-//             //     path.resolve(srcPath, "config.json"),
-//             //     path.resolve(buildToPath, "config.json")
-//             // ),
-//             // viteCompression({ deleteOriginFile: true }),//压缩gzib
-//             // visualizer({
-//             //     filename: './stats.html',
-//             //     open: true, // 自动打开报告
-//             //     sourcemap: true,
-//             //     gzipSize: true,
-//             //     brotliSize: true,
-//             //     template: 'treemap' // 报告类型
-//             // })//代码分析报告
-//         ],
-//         resolve: {
-//             alias: {
-//                 //   '@d6141-ts-lib': '/lib'
-//             }
-//         },
-//         build: {
-//             minify: "terser",//清理垃圾
-//             terserOptions: {
-//                 compress: {
-//                     drop_console: true,//清console
-//                     drop_debugger: true,//清debugger
-//                 },
-//             },
-//             emptyOutDir: true,//打包前清空
-//             assetsDir: './',
-//             outDir: buildToPath,
-//             sourcemap: false,
-//             rollupOptions: {
-//                 input:tsxPath.replace(cwdPath, ""),
-//                 output: {
-//                     entryFileNames: '[name][hash:6].js',
-//                     chunkFileNames: '[name][hash:6].js',
-//                     assetFileNames: '[name][hash:6].[ext]',
-//                 },
-//             },
-//         },
-//     }
-// })

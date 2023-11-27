@@ -3,12 +3,13 @@ import { EditOutlined } from "@ant-design/icons"
 import { Switch, Descriptions } from 'antd';
 import { useHover } from 'usehooks-ts'
 import { Space } from "antd"
-import { stateKey_t } from "../type.windows"
-
-
-const App: FC<{ statekey: stateKey_t<`mcu_dz003State`> }> = ({ statekey }) => {
+import { mcu_dz003State_t,mcu_dz003StateI18n_t,dz003StateReqParam } from "./.t"
+const App: FC<{
+    config:mcu_dz003State_t;
+    i18n: mcu_dz003StateI18n_t;
+    req:(...op:dz003StateReqParam)=>any
+}> = ({ i18n, config,req }) => {
     const Component: FC<{ k: "fa" | "frequency" | "laba" | "deng" }> = ({ k }) => {
-        const config = window.useStore(s => s.state[statekey])!;
         const v = config[k].working
         const hoverRef = useRef(null)
         const isHover = useHover(hoverRef)
@@ -19,8 +20,6 @@ const App: FC<{ statekey: stateKey_t<`mcu_dz003State`> }> = ({ statekey }) => {
                 <Space>{String(v)}<EditOutlined /></Space>
         }</div>
     }
-    const req = window.useStore(s => s.req)!
-    const i18n = window.useStore(s => s.state.i18n[statekey]);
     return (
         <Descriptions>
             <Descriptions.Item label={i18n.fa.working}>
