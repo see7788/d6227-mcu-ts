@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Descriptions, Space, Dropdown } from "antd"
 import { EditOutlined } from "@ant-design/icons"
-import OnSendTo from "../onSendTo"
+import OnSendTo from "../mcu_onSendTo"
 import {mcu_serialI18n_t, mcu_serial_t,mcu_serialI18n } from "./.t"
 const App: FC<{
     config: mcu_serial_t;

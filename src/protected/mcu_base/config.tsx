@@ -1,7 +1,7 @@
 
 import { FC } from 'react'
 import { Input, Descriptions } from "antd"
-import OnSendTo from "../onSendTo"
+import OnSendTo from "../mcu_onSendTo"
 import {mcu_baseI18n_t, mcu_base_t } from "./.t"
 const App: FC<{
     config: mcu_base_t;

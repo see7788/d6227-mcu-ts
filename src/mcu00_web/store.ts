@@ -4,21 +4,21 @@ import type { UseBoundStore, StoreApi } from "zustand"
 import { reqIpcInit_t } from "../protected/type"
 import type { } from 'zustand/middleware'//调试作用
 import { dz003StateReqParam } from "../protected/mcu_dz003/.t"
-import { configBase_t, state_t, configBase, i18n } from "./config"
-type reqParam_t<T extends keyof configBase_t> =
+import { config_t, state_t, configBase, i18n, i18n_t } from "./config"
+type reqParam_t<T extends keyof config_t> =
     ["i18n_get"] |
-    ["i18n_set"] |
+    ["i18n_set", i18n_t] |
     ["mcu_state_get"] |
     ["config_get"] |
-    ["config_set", Pick<configBase_t, T> | Partial<configBase_t>] |
-    ["config_toFileRestart", Partial<configBase_t>] |
+    ["config_set", Pick<config_t, T> | Partial<config_t>] |
+    ["config_toFileRestart", Partial<config_t>] |
     ["config_fromFileRestart"] |
     dz003StateReqParam
 interface store_t {
     state: state_t;
     res: (jsonstr: string) => void;
     reqIpcInit: reqIpcInit_t,
-    req: <T extends keyof configBase_t>(...op: reqParam_t<T>) => Promise<void>;
+    req: <T extends keyof config_t>(...op: reqParam_t<T>) => Promise<void>;
 }
 // declare global {
 //     interface Window {
@@ -31,7 +31,7 @@ const useStore = create<store_t>()(immer<store_t>((seter, self) => {
     let reqIpc = (str: string) => console.log("def")
     return {
         state: {
-            ...configBase, ...i18n
+            ...configBase, i18n
         },
         reqIpcInit: (req) => {
             if (req) {

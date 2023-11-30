@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Descriptions, InputNumber } from "antd"
 import Hover from "@/public/HoverEdit"
-import OnSendTo from "../onSendTo"
+import OnSendTo from "../mcu_onSendTo"
 import { mcu_ybl_t,mcu_yblI18n_t} from "./.t"
 const App: FC<{
     config: mcu_ybl_t;

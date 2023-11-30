@@ -1,6 +1,6 @@
 import { lazy, FC, Suspense, Fragment, useState } from 'react'
 import { LoadingOutlined } from "@ant-design/icons"
-import { Space, Collapse, theme, Button, Input, Tooltip, FloatButton, List } from "antd"
+import { Space, Collapse, theme, Button, Tooltip, FloatButton} from "antd"
 import createRoot from "../createApp"
 import useStore from "./store"
 import InputIp from "../protected/web_ipc/InputIp"
@@ -18,13 +18,13 @@ const McuDz003Log = lazy(() => import("../protected/mcu_dz003/log"))
 const McuYbl = lazy(() => import("../protected/mcu_ybl/config"))
 const McuWsServer = lazy(() => import("../protected/mcu_webServer/mcu_wsServer"))
 const McuEsServer = lazy(() => import("../protected/mcu_webServer/mcu_esServer"))
-const Mcu_webPageServer = lazy(() => import("../protected/mcu_webServer/mcu_webPageServer")) 
+const Mcu_webPageServer = lazy(() => import("../protected/mcu_webServer/mcu_webPageServer"))
 // const logo=new URL("1.png", import.meta.url).href
 //cssId 动画编号
 //defaultFC  没展开
 //defaultFCsize   没展开的格子尺寸（正方形）
 //openFC  展开       
-type App_t= FC<{ cssId: "a" | "b" | "c" | "d" ,defaultFC:FC<{listindex:number}>[],defaultFCsize:"300px",openFC:FC<{listindex:number}>}>
+type App_t = FC<{ cssId: "a" | "b" | "c" | "d", defaultFC: FC<{ listindex: number }>[], defaultFCsize: "300px", openFC: FC<{ listindex: number }> }>
 
 const App: FC = () => {
     const req = useStore(s => s.req)
@@ -85,39 +85,39 @@ const App: FC = () => {
         </div>)
     const uis = [
         ["webIpc", ipc],
-        ["i18n", <I18n state={state} state_set={console.log} />],
+        ["i18n", <I18n state={state.i18n} state_set={i18n => req("i18n_set", i18n)} />],
         state?.mcu_base && ["mcu_base",
             <Fragment>
-                <McuBase sendTos={sendTos} config={state.mcu_base} i18n={state.mcu_baseI18n} set={(...op) => req("config_set", { mcu_base: op })} />
-                {state?.mcu_state && <McuState config={state.mcu_state} i18n={state.mcu_stateI18n} />}
+                <McuBase sendTos={sendTos} config={state.mcu_base} i18n={state.i18n.mcu_base} set={(...op) => req("config_set", { mcu_base: op })} />
+                {state?.mcu_state && <McuState config={state.mcu_state} i18n={state.i18n.mcu_state} />}
             </Fragment>
         ],
         state?.mcu_net && ["mcu_net",
-            <McuNet netTypes={["sta", "eth", "ap+sta", "ap+eth"]} config={state.mcu_net} i18n={state.mcu_netI18n} set={(...op) => req("config_set", { mcu_net: op })} />
+            <McuNet netTypes={["sta", "eth", "ap+sta", "ap+eth"]} config={state.mcu_net} i18n={state.i18n.mcu_net} set={(...op) => req("config_set", { mcu_net: op })} />
         ],
         state?.mcu_serial && ["mcu_serial",
-            <McuSerial sendTos={sendTos} config={state.mcu_serial} i18n={state.mcu_serialI18n} set={(...op) => req("config_set", { mcu_serial: op })} />
+            <McuSerial sendTos={sendTos} config={state.mcu_serial} i18n={state.i18n.mcu_serial} set={(...op) => req("config_set", { mcu_serial: op })} />
         ],
         state?.mcu_dz003 && ["mcu_dz003",
             state?.mcu_dz003State ?
                 <Space direction="vertical">
-                    <McuDz003 sendTos={sendTos} config={state.mcu_dz003} i18n={state.mcu_dz003I18n} set={(...op) => req("config_set", { mcu_dz003: op })} />
-                    <McuDz003State config={state.mcu_dz003State} i18n={state.mcu_dz003StateI18n} req={req} />
-                    <McuDz003Log config={state.mcu_dz003State} i18n={state.mcu_dz003StateI18n} />
+                    <McuDz003 sendTos={sendTos} config={state.mcu_dz003} i18n={state.i18n.mcu_dz003} set={(...op) => req("config_set", { mcu_dz003: op })} />
+                    <McuDz003State config={state.mcu_dz003State} i18n={state.i18n.mcu_dz003State} req={req} />
+                    <McuDz003Log config={state.mcu_dz003State} i18n={state.i18n.mcu_dz003State} />
                 </Space> :
-                <McuDz003 sendTos={sendTos} config={state.mcu_dz003} i18n={state.mcu_dz003I18n} set={(...op) => req("config_set", { mcu_dz003: op })} />
+                <McuDz003 sendTos={sendTos} config={state.mcu_dz003} i18n={state.i18n.mcu_dz003} set={(...op) => req("config_set", { mcu_dz003: op })} />
         ],
         state?.mcu_ybl && ["mcu_ybl",
-            <McuYbl sendTos={sendTos} config={state.mcu_ybl} i18n={state.mcu_yblI18n} set={(...op) => req("config_set", { mcu_ybl: op })} />
+            <McuYbl sendTos={sendTos} config={state.mcu_ybl} i18n={state.i18n.mcu_ybl} set={(...op) => req("config_set", { mcu_ybl: op })} />
         ],
         state?.mcu_esServer && ["mcu_esServer",
-            <McuEsServer config={state.mcu_esServer} i18n={state.mcu_esServerI18n} set={(...op) => req("config_set", { mcu_esServer: op })} />
+            <McuEsServer config={state.mcu_esServer} i18n={state.i18n.mcu_esServer} set={(...op) => req("config_set", { mcu_esServer: op })} />
         ],
         state?.mcu_wsServer && ["mcu_wsServer",
-            <McuWsServer sendTos={sendTos} config={state.mcu_wsServer} i18n={state.mcu_wsServerI18n} set={(...op) => req("config_set", { mcu_wsServer: op })} />
+            <McuWsServer sendTos={sendTos} config={state.mcu_wsServer} i18n={state.i18n.mcu_wsServer} set={(...op) => req("config_set", { mcu_wsServer: op })} />
         ],
         state?.mcu_webPageServer && ["mcu_webPageServer",
-            <Mcu_webPageServer config={state.mcu_webPageServer} i18n={state.mcu_webPageServerI18n} set={(...op) => req("config_set", { mcu_webPageServer: op })} />
+            <Mcu_webPageServer config={state.mcu_webPageServer} i18n={state.i18n.mcu_webPageServer} set={(...op) => req("config_set", { mcu_webPageServer: op })} />
         ],
     ]
     return state?.mcu_base && (useWebSerial.msg === true || useWebSocket.msg === true || useWebEventSource.msg === true) ?
@@ -164,12 +164,12 @@ const App: FC = () => {
         ipc
 }
 export default createRoot(App)
- 
-const Demo=()=>{
-  const [open,setOpen]=useState<boolean>(false)//我可以自己写邦定
-  const ListId:FC<{key:number}>=({key})=><div style={{}}>写style定义尺寸，其他我自己写</div>
-  const defaultUi=<>{[].map((v,i)=><ListId key={i}/>)}</>
-  const openUi=<>我自己写</>
-  
-  return open?defaultUi:openUi//写组件，使用那个动画库
+
+const Demo = () => {
+    const [open, setOpen] = useState<boolean>(false)//我可以自己写邦定
+    const ListId: FC<{ key: number }> = ({ key }) => <div style={{}}>写style定义尺寸，其他我自己写</div>
+    const defaultUi = <>{[].map((v, i) => <ListId key={i} />)}</>
+    const openUi = <>我自己写</>
+
+    return open ? defaultUi : openUi//写组件，使用那个动画库
 }

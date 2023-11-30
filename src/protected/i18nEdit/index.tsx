@@ -1,11 +1,11 @@
 import { FC, Fragment, useEffect, useRef, useState } from "react"
 import { JSONEditor, JSONContent, JSONEditorPropsOptional, Mode } from "vanilla-jsoneditor";
-const App = <T extends Object>({ state, state_set }: { state: T, state_set: (state: T) => void }) => {
+const App:FC<{ state: any, state_set: (state: any) => void }> =({ state, state_set }) => {
     const refContainer = useRef<HTMLDivElement>(null);
     const refEditor = useRef<JSONEditor | null>(null);
     const [props, props_set] = useState<JSONEditorPropsOptional>({
         content: {
-            json: Object.fromEntries(Object.entries(state).filter(([v]) => v.indexOf("18n") > -1))
+            json:state//Object.fromEntries(Object.entries(state).filter(([v]) => v.indexOf("18n") > -1))
         },
         mode: Mode.tree,
         mainMenuBar: false,//显示主菜单栏。缺省值为true
