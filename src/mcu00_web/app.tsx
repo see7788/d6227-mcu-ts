@@ -1,13 +1,13 @@
-import { lazy, FC, Suspense, Fragment } from 'react'
+import { lazy, FC, Suspense, Fragment, useState } from 'react'
 import { LoadingOutlined } from "@ant-design/icons"
-import { Space, Collapse, theme, Button, Input, Tooltip, FloatButton } from "antd"
+import { Space, Collapse, theme, Button, Input, Tooltip, FloatButton, List } from "antd"
 import createRoot from "../createApp"
 import useStore from "./store"
 import InputIp from "../protected/web_ipc/InputIp"
 import UseWebSerial from "../protected/web_ipc/webSerial/useWebSerial"
 import UseWebSocket from "../protected/web_ipc/webSocket/useWebSocket"
 import UseWebEventSource from "../protected/web_ipc/eventSource/useEventSource"
-const I18n=lazy(()=>import("../protected/i18nEdit"))
+const I18n = lazy(() => import("../protected/i18nEdit"))
 const McuState = lazy(() => import("../protected/mcu_state"))
 const McuBase = lazy(() => import("../protected/mcu_base/config"))
 const McuNet = lazy(() => import("../protected/mcu_net/config"))
@@ -18,8 +18,13 @@ const McuDz003Log = lazy(() => import("../protected/mcu_dz003/log"))
 const McuYbl = lazy(() => import("../protected/mcu_ybl/config"))
 const McuWsServer = lazy(() => import("../protected/mcu_webServer/mcu_wsServer"))
 const McuEsServer = lazy(() => import("../protected/mcu_webServer/mcu_esServer"))
-const Mcu_webPageServer = lazy(() => import("../protected/mcu_webServer/mcu_webPageServer"))
+const Mcu_webPageServer = lazy(() => import("../protected/mcu_webServer/mcu_webPageServer")) 
 // const logo=new URL("1.png", import.meta.url).href
+//cssId 动画编号
+//defaultFC  没展开
+//defaultFCsize   没展开的格子尺寸（正方形）
+//openFC  展开       
+type App_t= FC<{ cssId: "a" | "b" | "c" | "d" ,defaultFC:FC<{listindex:number}>[],defaultFCsize:"300px",openFC:FC<{listindex:number}>}>
 
 const App: FC = () => {
     const req = useStore(s => s.req)
@@ -31,13 +36,13 @@ const App: FC = () => {
     const useWebEventSource = UseWebEventSource(res);
     const { Panel } = Collapse;
     const { token } = theme.useToken();
-    const css:React.CSSProperties= {
+    const css: React.CSSProperties = {
         alignItems: 'center',
         margin: 'auto',
         width: 'min-content',
         height: 'min-content',
         // padding: '20px',
-      }
+    }
     // const css:React.CSSProperties = {
     //     position: 'absolute',
     //     top: '50%',
@@ -47,7 +52,7 @@ const App: FC = () => {
     //     padding: '20px',
     // } as const
     const Login = () => <LoadingOutlined style={{ fontSize: '50px' }} spin />
-    const sendTos = (Object.keys(state).filter(v=>v.endsWith("18n")==false).filter(v => v.startsWith("mcu_serial") || v.startsWith("mcu_wsServer") || v.startsWith("mcu_esServer"))) as unknown as Array<any>
+    const sendTos = (Object.keys(state).filter(v => v.endsWith("18n") == false).filter(v => v.startsWith("mcu_serial") || v.startsWith("mcu_wsServer") || v.startsWith("mcu_esServer"))) as unknown as Array<any>
     const ipc = (
         <div style={{ ...css }}>
             <Space direction="vertical" >
@@ -80,7 +85,7 @@ const App: FC = () => {
         </div>)
     const uis = [
         ["webIpc", ipc],
-        ["i18n",<I18n state={state} state_set={console.log}/>],
+        ["i18n", <I18n state={state} state_set={console.log} />],
         state?.mcu_base && ["mcu_base",
             <Fragment>
                 <McuBase sendTos={sendTos} config={state.mcu_base} i18n={state.mcu_baseI18n} set={(...op) => req("config_set", { mcu_base: op })} />
@@ -159,3 +164,12 @@ const App: FC = () => {
         ipc
 }
 export default createRoot(App)
+ 
+const Demo=()=>{
+  const [open,setOpen]=useState<boolean>(false)//我可以自己写邦定
+  const ListId:FC<{key:number}>=({key})=><div style={{}}>写style定义尺寸，其他我自己写</div>
+  const defaultUi=<>{[].map((v,i)=><ListId key={i}/>)}</>
+  const openUi=<>我自己写</>
+  
+  return open?defaultUi:openUi//写组件，使用那个动画库
+}

@@ -3,9 +3,12 @@ import {
     Plugin,
     loadEnv,
     UserConfigExport,
+    UserConfigFn,
     normalizePath,
     createServer
 } from 'vite'
+import express from "express";
+import ViteExpress from "vite-express";
 import { resolve } from "node:path"
 import react from '@vitejs/plugin-react'
 import packagejson from "./package.json"
@@ -58,7 +61,7 @@ function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
 }
 const { outDir } = Object.fromEntries(process.argv.slice(2).map(v => v.replace("--", "")).map(v => v.split("="))) as { mode: string, outDir: string };
 
-export default defineConfig(({ command, mode }) => {
+const webconfig: UserConfigFn = ({ command, mode }) => {
     const tsxName = "app.tsx"
     const cwdPath = normalizePath(process.cwd())
     const srcPath = normalizePath(path.resolve(cwdPath, "src"))
@@ -66,18 +69,19 @@ export default defineConfig(({ command, mode }) => {
     const tsxPath = normalizePath(path.resolve(sitePath, tsxName))
     if (!fs.existsSync(tsxPath)) {
         const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath, v, tsxName))).map(v => `pnpm run dev --mode ${v}`);
-        throw new Error(apps.join("\n"))
+        console.log(apps)
+        throw new Error("!fs.existsSync(tsxPath)")
     }
     const title = `${packagejson.name}-${mode}`
     const buildToPath = normalizePath(outDir || path.resolve(cwdPath, `${title}-build`))
-    console.log({ command, cwdPath, tsxPath, title,buildToPath, env: loadEnv(mode, process.cwd()) })
+    console.log({ command, cwdPath, tsxPath, title, buildToPath, env: loadEnv(mode, process.cwd()) })
     return {
         server: {
             open: true,
             https: true,
-            proxy: {
-                '/api': 'http://localhost:3000'
-            }
+            // proxy: {
+            //     '/api': 'http://localhost:3000'
+            // }
         },
         plugins: [
             react(),
@@ -111,6 +115,7 @@ export default defineConfig(({ command, mode }) => {
                 '@': resolve(__dirname, './src/'),
             }
         },
+        ssr: {},
         build: {
             minify: "terser",//清理垃圾
             terserOptions: {
@@ -124,7 +129,7 @@ export default defineConfig(({ command, mode }) => {
             outDir: buildToPath,
             sourcemap: false,
             rollupOptions: {
-                //input: './src/mcu00_node/app.ts',
+                input: './src/mcu00_server/main.ts',
                 output: {
                     entryFileNames: '[name][hash:6].js',
                     chunkFileNames: '[name][hash:6].js',
@@ -133,4 +138,6 @@ export default defineConfig(({ command, mode }) => {
             },
         },
     }
-})
+}
+
+export default defineConfig(webconfig)

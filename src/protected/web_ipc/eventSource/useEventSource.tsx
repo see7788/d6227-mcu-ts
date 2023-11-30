@@ -1,7 +1,7 @@
 import { useState } from 'react'
 let obj: EventSource;
 import { res_t } from "../../type"
-type ip_t = `${number}.${number}.${number}.${number}`
+import {tokenIp} from "../../../public/toolFun"
 function readyState(): Promise<void> {
     return new Promise((ok) => {
         const loop = setInterval(() => {
@@ -13,12 +13,7 @@ function readyState(): Promise<void> {
         }, 300);
     })
 }
-function tokenIp(ip: string): (ip_t | void) {
-    const regExp = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/;
-    if (ip && regExp.test(ip)) {
-        return ip as ip_t;
-    }
-}
+
 export default (res: res_t) => {
     const [iparr, iparrSet] = useState<Array<number>>([0, 0, 0, 0])
     const [msg, msg_set] = useState<boolean | string>(false)
