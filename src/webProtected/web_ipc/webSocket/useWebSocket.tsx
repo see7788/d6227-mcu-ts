@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { reqIpcInit_t, res_t } from "../../type"
-import {tokenIp} from "../../../public/toolFun"
-
+import { reqIpcInit_t, res_t } from "@ui/type"
+import { tokenIp } from "@public/toolFun"
 let obj: WebSocket;
 function readyState(): Promise<void> {
     return new Promise((ok) => {
@@ -25,16 +24,18 @@ export default (...[reqIpcInit, res]: param_t) => {
         msg_set(false)
         reqIpcInit();
     }
-    const connect = async () => {
-        const ip = iparr.join(".");
-        if (tokenIp(ip) == undefined || iparr.join(".") === "0.0.0.0") {
-            msg_set("ip地址格式错误")
-            return
+    const connect = async (url?: string) => {
+        if (!url) {
+            const ip = iparr.join(".");
+            if (tokenIp(ip) == undefined || iparr.join(".") === "0.0.0.0") {
+                msg_set("ip地址格式错误")
+                return
+            }
+            msg_set("正在连接")
+            url = "ws://" + ip + "/ws";
         }
-        msg_set("正在连接")
-        const wsUri = "ws://" + ip + "/ws";
         try {
-            obj = new WebSocket(wsUri);
+            obj = new WebSocket(url);
         } catch (e) {
             msg_set(JSON.stringify(e))
         }
@@ -45,7 +46,7 @@ export default (...[reqIpcInit, res]: param_t) => {
         obj.onclose = _ => {
             setTimeout(() => {
                 msg_set("连接断开，正在重连...")
-                connect();
+                connect(url);
             }, 5000);
         }
         obj.onopen = async _ => {

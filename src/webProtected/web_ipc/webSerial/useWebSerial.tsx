@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { reqIpcInit_t, res_t } from "../../type"
+import { reqIpcInit_t, res_t } from "@ui/type"
 export type ResStream_analysisParam_t = "{}" | "\n" | "|||"
 class ResStream_analysis {
     transform: (chunk: string, controller: any) => void | Promise<void>

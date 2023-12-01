@@ -15,4 +15,4 @@ export type i18n_Tuple_t<T extends Array<any>> = {
 };
 
 export type res_t=(str:string)=>void
-export type reqIpcInit_t=(c?:(str:string)=>void)=>void
+export type reqIpcInit_t=(req?:(str:string)=>void)=>void

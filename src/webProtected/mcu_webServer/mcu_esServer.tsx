@@ -1,7 +1,7 @@
 
 import { FC } from 'react'
 import { Input, Descriptions } from "antd"
-import HoverEdit from "@/public/HoverEdit"
+import HoverEdit from "@public/HoverEdit"
 import { mcu_esServer_t,mcu_esServerI18n_t} from "./.t"
 const App: FC<{ 
     config: mcu_esServer_t;

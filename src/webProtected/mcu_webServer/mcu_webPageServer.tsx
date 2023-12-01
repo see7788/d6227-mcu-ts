@@ -1,7 +1,7 @@
 
 import { FC } from 'react'
 import { Input, Descriptions } from "antd"
-import HoverEdit from "@/public/HoverEdit"
+import HoverEdit from "@public/HoverEdit"
 import { mcu_webPageServer_t,mcu_webPageServerI18n_t} from "./.t"
 const App: FC<{
     config: mcu_webPageServer_t;

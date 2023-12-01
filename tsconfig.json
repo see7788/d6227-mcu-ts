@@ -9,7 +9,8 @@
       "ESNext"
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@public/*": ["./src/public/*"],
+      "@ui/*": ["./src/webProtected/*"],
     },
     "allowJs": false,
     "skipLibCheck": true,

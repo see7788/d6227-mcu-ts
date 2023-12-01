@@ -1,9 +1,9 @@
 import { immer } from 'zustand/middleware/immer'
 import { create } from "zustand"
 import type { UseBoundStore, StoreApi } from "zustand"
-import { reqIpcInit_t } from "../protected/type"
+import { reqIpcInit_t } from "@ui/type"
 import type { } from 'zustand/middleware'//调试作用
-import { dz003StateReqParam } from "../protected/mcu_dz003/.t"
+import { dz003StateReqParam } from "@ui/mcu_dz003/.t"
 import { config_t, state_t, configBase, i18n, i18n_t } from "./config"
 type reqParam_t<T extends keyof config_t> =
     ["i18n_get"] |
@@ -17,7 +17,7 @@ type reqParam_t<T extends keyof config_t> =
 interface store_t {
     state: state_t;
     res: (jsonstr: string) => void;
-    reqIpcInit: reqIpcInit_t,
+    reqInit: reqIpcInit_t,
     req: <T extends keyof config_t>(...op: reqParam_t<T>) => Promise<void>;
 }
 // declare global {
@@ -33,13 +33,13 @@ const useStore = create<store_t>()(immer<store_t>((seter, self) => {
         state: {
             ...configBase, i18n
         },
-        reqIpcInit: (req) => {
-            if (req) {
-                reqIpc = req
-                console.log("req Sertting")
-                self().req("i18n_get")
+        reqInit: (newreq) => {
+            if (newreq) {
+                reqIpc = newreq
+                const token=configBase.mcu_base[4];
+                newreq("i18n_get")
                 setTimeout(() => {
-                    self().req("mcu_state_get")
+                    newreq("mcu_state_get")
                 }, 10);
             } else {
                 reqIpc = () => console.log("req  null")

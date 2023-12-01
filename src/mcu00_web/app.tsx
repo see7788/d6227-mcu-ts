@@ -1,34 +1,82 @@
 import { lazy, FC, Suspense, Fragment, useState } from 'react'
 import { LoadingOutlined } from "@ant-design/icons"
-import { Space, Collapse, theme, Button, Tooltip, FloatButton} from "antd"
+import { Space, Collapse, theme, Button, Tooltip, FloatButton, Segmented, Input } from "antd"
 import createRoot from "../createApp"
 import useStore from "./store"
-import InputIp from "../protected/web_ipc/InputIp"
-import UseWebSerial from "../protected/web_ipc/webSerial/useWebSerial"
-import UseWebSocket from "../protected/web_ipc/webSocket/useWebSocket"
-import UseWebEventSource from "../protected/web_ipc/eventSource/useEventSource"
-const I18n = lazy(() => import("../protected/i18nEdit"))
-const McuState = lazy(() => import("../protected/mcu_state"))
-const McuBase = lazy(() => import("../protected/mcu_base/config"))
-const McuNet = lazy(() => import("../protected/mcu_net/config"))
-const McuSerial = lazy(() => import("../protected/mcu_serial/config"))
-const McuDz003 = lazy(() => import("../protected/mcu_dz003/config"))
-const McuDz003State = lazy(() => import("../protected/mcu_dz003/state"))
-const McuDz003Log = lazy(() => import("../protected/mcu_dz003/log"))
-const McuYbl = lazy(() => import("../protected/mcu_ybl/config"))
-const McuWsServer = lazy(() => import("../protected/mcu_webServer/mcu_wsServer"))
-const McuEsServer = lazy(() => import("../protected/mcu_webServer/mcu_esServer"))
-const Mcu_webPageServer = lazy(() => import("../protected/mcu_webServer/mcu_webPageServer"))
-// const logo=new URL("1.png", import.meta.url).href
-//cssId 动画编号
-//defaultFC  没展开
-//defaultFCsize   没展开的格子尺寸（正方形）
-//openFC  展开       
-type App_t = FC<{ cssId: "a" | "b" | "c" | "d", defaultFC: FC<{ listindex: number }>[], defaultFCsize: "300px", openFC: FC<{ listindex: number }> }>
-
+import InputIp from "@public/InputIp"
+import UseWebSerial from "@ui/web_ipc/webSerial/useWebSerial"
+import UseWebSocket from "@ui/web_ipc/webSocket/useWebSocket"
+import UseWebEventSource from "@ui/web_ipc/eventSource/useEventSource"
+import UseMqtt from "@ui/web_ipc/mqtt/useMqtt"
+const JsonEdit = lazy(() => import("@ui/jsonEdit"))
+const McuState = lazy(() => import("@ui/mcu_state"))
+const McuBase = lazy(() => import("@ui/mcu_base/config"))
+const McuNet = lazy(() => import("@ui/mcu_net/config"))
+const McuSerial = lazy(() => import("@ui/mcu_serial/config"))
+const McuDz003 = lazy(() => import("@ui/mcu_dz003/config"))
+const McuDz003State = lazy(() => import("@ui/mcu_dz003/state"))
+const McuDz003Log = lazy(() => import("@ui/mcu_dz003/log"))
+const McuYbl = lazy(() => import("@ui/mcu_ybl/config"))
+const McuWsServer = lazy(() => import("@ui/mcu_webServer/mcu_wsServer"))
+const McuEsServer = lazy(() => import("@ui/mcu_webServer/mcu_esServer"))
+const McuWebPageServer = lazy(() => import("@ui/mcu_webServer/mcu_webPageServer"))
+console.log(window.location.protocol)
+const NetIpcUi: FC = () => {
+    type addressType_t = 'url' | 'ip';
+    const addressTypeOp: [addressType_t, addressType_t] = ['url', 'ip']
+    const [addressType, addressTypeSet] = useState<addressType_t>("url")
+    const [ipt, iptSet] = useState("")
+    type ipcType_t = 'ws' | 'es' | 'mqtt'
+    const ipcTypeOp: [ipcType_t, ipcType_t, ipcType_t] = ['ws', 'es', 'mqtt']
+    const [ipcType, ipcTypeSet] = useState<ipcType_t>("ws")
+    const reqIpcInit = useStore(s => s.reqInit)
+    const res = useStore(s => s.res)
+    const useWebSocket = UseWebSocket(reqIpcInit, res)
+    const useWebEventSource = UseWebEventSource(res);
+    const useMqtt = UseMqtt(reqIpcInit, res)
+    const addressUi = {
+        url: <Input style={{ width: "200px" }} size='small' value={ipt} onChange={v => iptSet(v.currentTarget.value)} />,
+        ip: {
+            ws: <InputIp ipArr={useWebSocket.iparr} ipArrSet={(i, v) => useWebSocket.iparr_set(i, v)} />,
+            es: <InputIp ipArr={useWebEventSource.iparr} ipArrSet={(i, v) => useWebEventSource.iparr_set(i, v)} />,
+            mqtt: <InputIp ipArr={useMqtt.iparr} ipArrSet={(i, v) => useMqtt.iparr_set(i, v)} />,
+        }[ipcType]
+    }[addressType]
+    const btnUi = {
+        ws: <Button block size="small" onClick={() => {
+            useWebSocket.msg === true ? useWebSocket.disconnect() : useWebSocket.connect(ipt)
+        }}>
+            <Tooltip title={useWebSocket.msg} open={!!(useWebSocket.msg && useWebSocket.msg !== true)}>{
+                useWebSocket.msg === true ? "断开" : "连接"
+            }</Tooltip>
+        </Button>,
+        es: <Button block size="small" onClick={() => {
+            useWebEventSource.msg === true ? useWebEventSource.disconnect() : useWebEventSource.connect()
+        }}>
+            <Tooltip title={useWebEventSource.msg} open={!!(useWebEventSource.msg && useWebEventSource.msg !== true)}>{
+                useWebEventSource.msg === true ? "断开" : "连接"
+            }</Tooltip>
+        </Button>,
+        mqtt: <Button block size="small" onClick={() => {
+            useMqtt.msg === true ? useMqtt.disconnect() : useMqtt.connect()
+        }}>
+            <Tooltip title={useMqtt.msg} open={!!(useMqtt.msg && useMqtt.msg !== true)}>{
+                useMqtt.msg === true ? "断开" : "连接"
+            }</Tooltip>
+        </Button>,
+    }[ipcType]
+    return (
+        <Space>
+            <Segmented size='small' options={addressTypeOp} value={addressType} onChange={v => addressTypeSet(v as addressType_t)} />
+            {addressUi}
+            <Segmented size='small' options={ipcTypeOp} value={ipcType} onChange={v => ipcTypeSet(v as ipcType_t)} />
+            {btnUi}
+        </Space>
+    )
+}
 const App: FC = () => {
     const req = useStore(s => s.req)
-    const reqIpcInit = useStore(s => s.reqIpcInit)
+    const reqIpcInit = useStore(s => s.reqInit)
     const res = useStore(s => s.res)
     const state = useStore(s => s.state)
     const useWebSerial = UseWebSerial(115200, "\n", reqIpcInit, res)
@@ -53,45 +101,28 @@ const App: FC = () => {
     // } as const
     const Login = () => <LoadingOutlined style={{ fontSize: '50px' }} spin />
     const sendTos = (Object.keys(state).filter(v => v.endsWith("18n") == false).filter(v => v.startsWith("mcu_serial") || v.startsWith("mcu_wsServer") || v.startsWith("mcu_esServer"))) as unknown as Array<any>
-    const ipc = (
+    const webIpc = (
         <div style={{ ...css }}>
             <Space direction="vertical" >
+                <NetIpcUi />
                 <Button block size='small' onClick={() => {
                     useWebSerial.msg === true ? useWebSerial.disconnect() : useWebSerial.connect()
                 }}>
-                    <Tooltip title={useWebSerial.msg} open={!!(useWebSerial.msg && useWebSerial.msg !== true)}>{
+                    <Tooltip title={useWebSerial.msg} open={!!(useWebSerial.msg && useWebSerial.msg !== true)}>usb{
                         useWebSerial.msg === true ? "断开" : "连接"
-                    }usb</Tooltip>
+                    }</Tooltip>
                 </Button>
-                <InputIp ipArr={useWebSocket.iparr} ipArrSet={(i, v) => useWebSocket.iparr_set(i, v)} >
-                    <Button block size="small" onClick={() => {
-                        useWebSocket.msg === true ? useWebSocket.disconnect() : useWebSocket.connect()
-                    }}>
-                        <Tooltip title={useWebSocket.msg} open={!!(useWebSocket.msg && useWebSocket.msg !== true)}>{
-                            useWebSocket.msg === true ? "断开" : "连接"
-                        }ws</Tooltip>
-                    </Button>
-                </InputIp >
-                <InputIp ipArr={useWebEventSource.iparr} ipArrSet={(i, v) => useWebEventSource.iparr_set(i, v)} >
-                    <Button block size="small" onClick={() => {
-                        useWebEventSource.msg === true ? useWebEventSource.disconnect() : useWebEventSource.connect()
-                    }}>
-                        <Tooltip title={useWebEventSource.msg} open={!!(useWebEventSource.msg && useWebEventSource.msg !== true)}>{
-                            useWebEventSource.msg === true ? "断开" : "连接"
-                        }es</Tooltip>
-                    </Button>
-                </InputIp >
             </Space>
         </div>)
     const uis = [
-        ["webIpc", ipc],
-        ["i18n", <I18n state={state.i18n} state_set={i18n => req("i18n_set", i18n)} />],
+        ["webIpc", webIpc],
         state?.mcu_base && ["mcu_base",
             <Fragment>
                 <McuBase sendTos={sendTos} config={state.mcu_base} i18n={state.i18n.mcu_base} set={(...op) => req("config_set", { mcu_base: op })} />
                 {state?.mcu_state && <McuState config={state.mcu_state} i18n={state.i18n.mcu_state} />}
             </Fragment>
         ],
+        ["mcu_i18n", <JsonEdit state={state.i18n} state_set={i18n => req("i18n_set", i18n)} />],
         state?.mcu_net && ["mcu_net",
             <McuNet netTypes={["sta", "eth", "ap+sta", "ap+eth"]} config={state.mcu_net} i18n={state.i18n.mcu_net} set={(...op) => req("config_set", { mcu_net: op })} />
         ],
@@ -117,9 +148,17 @@ const App: FC = () => {
             <McuWsServer sendTos={sendTos} config={state.mcu_wsServer} i18n={state.i18n.mcu_wsServer} set={(...op) => req("config_set", { mcu_wsServer: op })} />
         ],
         state?.mcu_webPageServer && ["mcu_webPageServer",
-            <Mcu_webPageServer config={state.mcu_webPageServer} i18n={state.i18n.mcu_webPageServer} set={(...op) => req("config_set", { mcu_webPageServer: op })} />
+            <McuWebPageServer config={state.mcu_webPageServer} i18n={state.i18n.mcu_webPageServer} set={(...op) => req("config_set", { mcu_webPageServer: op })} />
         ],
-    ]
+    ].filter((v): v is [string, JSX.Element] => {
+        return Array.isArray(v) && v.length > 0
+    }).
+        // filter(v => typeof v !== "undefined").
+        map((c, i) => (
+            <Panel key={i} header={c[0]} extra={i}>
+                <Suspense fallback={<Login />}>{c[1]}</Suspense>
+            </Panel>
+        ))
     return state?.mcu_base && (useWebSerial.msg === true || useWebSocket.msg === true || useWebEventSource.msg === true) ?
         <Fragment>
             <Suspense fallback={<>login</>}>
@@ -148,28 +187,9 @@ const App: FC = () => {
                 defaultActiveKey={[0]}
                 style={{ background: token.colorBgContainer }}
             >
-                {
-                    uis.filter((v): v is [string, JSX.Element] => {
-                        return Array.isArray(v) && v.length > 0
-                    }).
-                        // filter(v => typeof v !== "undefined").
-                        map((c, i) => (
-                            <Panel key={i} header={c[0]} extra={i}>
-                                <Suspense fallback={<Login />}>{c[1]}</Suspense>
-                            </Panel>
-                        ))
-                }
+                {uis}
             </Collapse>
         </Fragment> :
-        ipc
+        webIpc
 }
 export default createRoot(App)
-
-const Demo = () => {
-    const [open, setOpen] = useState<boolean>(false)//我可以自己写邦定
-    const ListId: FC<{ key: number }> = ({ key }) => <div style={{}}>写style定义尺寸，其他我自己写</div>
-    const defaultUi = <>{[].map((v, i) => <ListId key={i} />)}</>
-    const openUi = <>我自己写</>
-
-    return open ? defaultUi : openUi//写组件，使用那个动画库
-}

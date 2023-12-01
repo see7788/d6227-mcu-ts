@@ -1,7 +1,7 @@
 import { useState, FC, lazy } from 'react'
 import { Descriptions, Select, MenuProps, Dropdown, theme, Button, Space, Input, Tooltip } from "antd"
 import { EditOutlined } from "@ant-design/icons"
-import HoverEdit from "@/public/HoverEdit"
+import HoverEdit from "@public/HoverEdit"
 import { mcu_net_t,mcu_net_use_t,mcu_netI18n_t, mcu_net_useI18n } from "./.t"
 const App: FC<{
     netTypes: Array<mcu_net_use_t>;

@@ -112,7 +112,8 @@ const webconfig: UserConfigFn = ({ command, mode }) => {
         ],
         resolve: {
             alias: {
-                '@': resolve(__dirname, './src/'),
+                '@public': resolve(__dirname, './src/public/'),
+                '@ui': resolve(__dirname, './src/webProtected/'),
             }
         },
         ssr: {},
