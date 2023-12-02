@@ -8,13 +8,13 @@ import {
 import { mcu_base_t, mcu_baseI18n_t, mcu_baseI18n } from "@ui/mcu_base/.t"
 import {mcu_net_t, mcu_netI18n_t, mcu_netI18n} from "@ui/mcu_net/.t"
 import { mcu_state_t, mcu_stateI18n_t, mcu_stateI18n } from "@ui/mcu_state/.t"
-import { mcu_serial_t, mcu_serialI18n_t, mcu_serialI18n } from "@ui/mcu_serial/.t"
+import { mcu_serial_t, mcu_serialI18n_t, mcu_serialI18n } from "@ui/mcu_ipc/mcu_serial/.t"
 import { mcu_ybl_t, mcu_yblI18n_t, mcu_yblI18n } from "@ui/mcu_ybl/.t"
 import {
     mcu_webPageServer_t, mcu_webPageServerI18n_t, mcu_webPageServerI18n,
     mcu_wsServer_t, mcu_wsServerI18n_t, mcu_wsServerI18n,
     mcu_esServer_t, mcu_esServerI18n_t, mcu_esServerI18n
-} from "@ui/mcu_webServer/.t"
+} from "@ui/mcu_server/.t"
 export interface i18n_t {
     mcu_dz003: mcu_dz003I18n_t;
     mcu_dz003State: mcu_dz003StateI18n_t;
