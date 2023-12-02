@@ -7,7 +7,7 @@ import UseWebEventSource from "./eventSource/useEventSource"
 import UseMqtt from "./mqtt/useMqtt"
 import InputIp from "@public/InputIp"
 type param_t = { reqIpcInit: reqIpcInit_t, res: res_t }
-const App: FC<param_t> = ({ reqIpcInit, res }) => {
+const App: FC<param_t> = memo(({ reqIpcInit, res }) => {
     const css: React.CSSProperties = {
         alignItems: 'center',
         margin: 'auto',
@@ -76,5 +76,5 @@ const App: FC<param_t> = ({ reqIpcInit, res }) => {
             </Space>
         </div>
     )
-}
+})
 export default App

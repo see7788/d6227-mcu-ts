@@ -1,51 +1,186 @@
-// set WECHATY_LOG=verbose
-// set WECHATY_PUPPET=wechaty-puppet-wechat
-const log = console.trace
 import {
-  Wechaty,
   WechatyBuilder,
-  Contact,//所有微信联系人（好友/非好友）都将封装为一个联系人。
-  Friendship,//发送、接收好友请求和好友确认事件。
-  Message,//所有微信消息都将封装为消息。
-  Room,//所有微信聊天室（群）都将封装为一个聊天室。
-  RoomInvitation,//接受会议室邀请
-  ContactSelf,
-  ScanStatus//类是从 扩展而来的。ContactSelfContact
-} from 'wechaty'
-import qrTerm from 'qrcode-terminal'
-WechatyBuilder.build({
-  name: 'ding-dong-bot',
-  puppet: 'wechaty-puppet-wechat',
-})
-  .on("scan", (qrcode, status) => {
-    if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
-      qrTerm.generate(qrcode)
-      const qrcodeImageUrl = [
-        'https://wechaty.js.org/qrcode/',
-        encodeURIComponent(qrcode),
-      ].join('')
-      log('onScan', ScanStatus[status], status, qrcodeImageUrl)
-      //log(`[${ScanStatus[status]}(${status})] ${qrcodeImageUrl}\nScan QR Code above to log in: `)
-  } else {
-      log('onScan', ScanStatus[status], status)
-    }
-  })
-  .on("login", (user) => log('login', user))
-  .on('logout', (user) => log('logout', user))
-  .on('message', log)
- // .on("dong", c => log("dong", c))
-  // .on("heartbeat", (...c) => log("heartbeat", c))
-  // .on("friendship", (...c) => log("friendship", c))
-  // .on("puppet", (...c) => log("puppet", c))
-  // .on("ready", (...c) => log("ready", c))
-  // .on("post", (...c) => log("post", c))
-  // .on("error", (...c) => log("error", c))
-  // .on("stop", (...c) => log("stop", c))
-  // .on("room-invite", (...c) => log("room-invite", c))
-  // .on("room-join", (...c) => log("room-join", c))
-  // .on("room-leave", (...c) => log("room-leave", c))
-  // .on("room-topic", (...c) => log("room-topic", c))
-  .start()
-  .then(() => log('StarterBot', 'Starter Bot Started.'))
-  .catch(e => log('StarterBot', e))
+  ScanStatus,
+  Message,
+  Contact,
+}                     from 'wechaty' // from 'wechaty'
 
+import qrTerm from 'qrcode-terminal'
+import { FileBox } from 'file-box'
+
+/**
+ *
+ * 1. Declare your Bot!
+ *
+ */
+const options = {
+  name : 'ding-dong-bot',
+
+  /**
+   * You can specify different puppet for different IM protocols.
+   * Learn more from https://wechaty.js.org/docs/puppet-providers/
+   */
+  // puppet: 'wechaty-puppet-whatsapp'
+
+  /**
+   * You can use wechaty puppet provider 'wechaty-puppet-service'
+   *   which can connect to Wechaty Puppet Services
+   *   for using more powerful protocol.
+   * Learn more about services (and TOKEN)from https://wechaty.js.org/docs/puppet-services/
+   */
+  // puppet: 'wechaty-puppet-service'
+  // puppetOptions: {
+  //   token: 'xxx',
+  // }
+}
+
+const bot = WechatyBuilder.build(options)
+
+/**
+ *
+ * 2. Register event handlers for Bot
+ *
+ */
+bot
+  .on('logout', onLogout)
+  .on('login',  onLogin)
+  .on('scan',   onScan)
+  .on('error',  onError)
+  .on('message', onMessage)
+/**
+ *
+ * 3. Start the bot!
+ *
+ */
+  .start()
+  .catch(async e => {
+    console.error('Bot start() fail:', e)
+    await bot.stop()
+    process.exit(-1)
+  })
+
+/**
+ *
+ * 4. You are all set. ;-]
+ *
+ */
+
+/**
+ *
+ * 5. Define Event Handler Functions for:
+ *  `scan`, `login`, `logout`, `error`, and `message`
+ *
+ */
+function onScan (qrcode: string, status: ScanStatus) {
+  if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
+    qrTerm.generate(qrcode)
+
+    const qrcodeImageUrl = [
+      'https://wechaty.js.org/qrcode/',
+      encodeURIComponent(qrcode),
+    ].join('')
+
+    console.info('onScan: %s(%s) - %s', ScanStatus[status], status, qrcodeImageUrl)
+  } else {
+    console.info('onScan: %s(%s)', ScanStatus[status], status)
+  }
+
+  // console.info(`[${ScanStatus[status]}(${status})] ${qrcodeImageUrl}\nScan QR Code above to log in: `)
+}
+
+function onLogin (user: Contact) {
+  console.info(`${user.name()} login`)
+}
+
+function onLogout (user: Contact) {
+  console.info(`${user.name()} logged out`)
+}
+
+function onError (e: Error) {
+  console.error('Bot error:', e)
+  /*
+  if (bot.isLoggedIn) {
+    bot.say('Wechaty error: ' + e.message).catch(console.error)
+  }
+  */
+}
+
+/**
+ *
+ * 6. The most important handler is for:
+ *    dealing with Messages.
+ *
+ */
+async function onMessage (msg: Message) {
+  console.info(msg.toString())
+
+  if (msg.self()) {
+    console.info('Message discarded because its outgoing')
+    return
+  }
+
+  if (msg.age() > 2 * 60) {
+    console.info('Message discarded because its TOO OLD(than 2 minutes)')
+    return
+  }
+
+  if (msg.type() !== bot.Message.Type.Text
+    || !/^(ding|ping|bing|code)$/i.test(msg.text())
+  ) {
+    console.info('Message discarded because it does not match ding/ping/bing/code')
+    return
+  }
+
+  /**
+   * 1. reply 'dong'
+   */
+  await msg.say('dong')
+  console.info('REPLY: dong')
+
+  /**
+   * 2. reply image(qrcode image)
+   */
+  const fileBox = FileBox.fromUrl('https://wechaty.github.io/wechaty/images/bot-qr-code.png')
+
+  await msg.say(fileBox)
+  console.info('REPLY: %s', fileBox.toString())
+
+  /**
+   * 3. reply 'scan now!'
+   */
+  await msg.say([
+    'Join Wechaty Developers Community\n\n',
+    'Scan now, because other Wechaty developers want to talk with you too!\n\n',
+    '(secret code: wechaty)',
+  ].join(''))
+}
+
+/**
+ *
+ * 7. Output the Welcome Message
+ *
+ */
+const welcome = `
+| __        __        _           _
+| \\ \\      / /__  ___| |__   __ _| |_ _   _
+|  \\ \\ /\\ / / _ \\/ __| '_ \\ / _\` | __| | | |
+|   \\ V  V /  __/ (__| | | | (_| | |_| |_| |
+|    \\_/\\_/ \\___|\\___|_| |_|\\__,_|\\__|\\__, |
+|                                     |___/
+
+=============== Powered by Wechaty ===============
+-------- https://github.com/wechaty/wechaty --------
+          Version: ${bot.version()}
+
+I'm a bot, my superpower is talk in Wechat.
+
+If you send me a 'ding', I will reply you a 'dong'!
+__________________________________________________
+
+Hope you like it, and you are very welcome to
+upgrade me to more superpowers!
+
+Please wait... I'm trying to login in...
+
+`
+console.info(welcome)

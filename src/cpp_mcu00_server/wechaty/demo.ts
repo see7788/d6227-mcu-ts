@@ -11,10 +11,11 @@ import {
     ContactSelf,
     ScanStatus,//类是从 扩展而来的。ContactSelfContact
   } from 'wechaty'
-  import {WechatyEventListenerScan} from "wechaty/src/schemas/wechaty-events"
+  import {WechatyEventListenerScan,WechatyEventListenerMessage} from "wechaty/src/schemas/wechaty-events"
+  import {MessageInterface} from "wechaty/src/user-modules/message"
 
   const log = console.trace
-
+  //https://wechaty.js.org/docs/using-plugin-with-wechaty/overview //开发插件
   // https://wechaty.js.org/docs/howto/room  微信群操作
 // https://wechaty.js.org/docs/howto/friendship 添加好友操作
 // https://wechaty.js.org/docs/howto/file-box  文件收发

@@ -8,8 +8,7 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "vite --host 0.0.0.0 --port 6227",
     "build": "tsc && vite build",
-    "dev:server": "nodemon src/mcu00_server/main.ts -w src/mcu00_server",
-    "start:server": "set NODE_ENV=production  &&  ts-node src/mcu00_server/main.ts",
+    "dev:cpp_mcu00_server": "nodemon src/cpp_mcu00_server/app.ts -w src/cpp_mcu00_server",
     "preview": "vite preview"
   },
   "publishConfig": {
