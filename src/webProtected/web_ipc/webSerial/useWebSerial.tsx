@@ -100,7 +100,7 @@ export default (
             msg_set(true)
             reqIpcInit((str) => {
                 str += "\n"
-                console.log(str)
+                console.log(2,str)
                 writer.write(new TextEncoder().encode(str));
             })
             while (true) {

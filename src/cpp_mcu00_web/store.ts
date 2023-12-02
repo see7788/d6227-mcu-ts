@@ -14,11 +14,12 @@ type reqParam_t<T extends keyof config_t> =
     ["config_toFileRestart", Partial<config_t>] |
     ["config_fromFileRestart"] |
     dz003StateReqParam
+type req_t = <T extends keyof config_t>(...op: reqParam_t<T>) => Promise<void>
 interface store_t {
     state: state_t;
     res: (jsonstr: string) => void;
     reqInit: reqIpcInit_t,
-    req: <T extends keyof config_t>(...op: reqParam_t<T>) => Promise<void>;
+    req: req_t;
 }
 // declare global {
 //     interface Window {
@@ -28,29 +29,42 @@ interface store_t {
 //window.req=()=>console.log("stroe def")
 const defapptoken = configBase.mcu_base[4]
 const useStore = create<store_t>()(immer<store_t>((seter, self) => {
-    let reqIpc = (str: string) => console.log("def")
+    const defReq: req_t = async (...str: any[]) => console.log("defReq")
     return {
         state: {
             ...configBase, i18n
         },
-        reqInit: (newreq) => {
-            if (newreq) {
-                reqIpc = newreq
-                const token=configBase.mcu_base[4];
-                newreq("i18n_get")
+        reqInit: req2 => {
+            if (req2) {
+                seter(s => {
+                    s.req = async (...op) => {
+                        if (op[0] === "config_set") {
+                            seter(s => {
+                                s.state = { ...s.state, ...op[1] }
+                            })
+                        }
+                        const db = { api: op[0], db: op[1], token: defapptoken }
+                        //console.log(1, db)
+                        req2(JSON.stringify(db))
+                    }
+                })
+                self().req("i18n_get")
                 setTimeout(() => {
-                    newreq("mcu_state_get")
-                }, 10);
+                    self().req("mcu_state_get")
+                }, 300);
             } else {
-                reqIpc = () => console.log("req  null")
+                seter(s => {
+                    s.req = defReq
+                })
             }
         },
-        res: (jsonstr) => seter(s => {
+        res: jsonstr => seter(s => {
             try {
                 const data = JSON.parse(jsonstr) as { api: string, db: Partial<state_t>, token: string };
-                if (data.token !== defapptoken) {
-                    data.token += ' apptoken error'
-                } else if (data.api.indexOf("set") === -1) {
+                // if (data.token !== defapptoken) {
+                //     data.token += ' apptoken error'
+                // } else 
+                if (data.api.indexOf("set") === -1) {
                     data.api += ".indexOf('set') === -1"
                 } else {
                     s.state = { ...s.state, ...data.db }
@@ -63,16 +77,7 @@ const useStore = create<store_t>()(immer<store_t>((seter, self) => {
                 console.error({ jsonstr, e })
             }
         }),
-        req: async (...op) => {
-            if (op[0] === "config_set") {
-                seter(s => {
-                    s.state = { ...s.state, ...op[1] }
-                })
-            }
-            const db = { api: op[0], db: op[1], token: defapptoken }
-            // console.log(db)
-            reqIpc(JSON.stringify(db))
-        },
+        req: defReq,
     }
 }))
 
