@@ -1,14 +1,14 @@
 import { lazy, FC, Suspense, Fragment, useState, memo } from 'react'
 import { LoadingOutlined } from "@ant-design/icons"
 import { Space, Collapse, theme, Button, Tooltip, FloatButton, Segmented, Input } from "antd"
-import createRoot from "../createApp"
+import createRoot from "../webProtected/createApp"
 import useStore from "./store"
 const WebIpc = lazy(() => import("@ui/web_ipc"))
 const JsonEdit = lazy(() => import("@ui/jsonEdit"))
 const McuState = lazy(() => import("@ui/mcu_state"))
 const McuBase = lazy(() => import("@ui/mcu_base/config"))
 const McuNet = lazy(() => import("@ui/mcu_net/config"))
-const McuSerial = lazy(() => import("@ui/mcu_ipcserial/config"))
+const McuSerial = lazy(() => import("@ui/mcu_ipcSerial/config"))
 const McuDz003 = lazy(() => import("@ui/mcu_dz003/config"))
 const McuDz003State = lazy(() => import("@ui/mcu_dz003/state"))
 const McuDz003Log = lazy(() => import("@ui/mcu_dz003/log"))

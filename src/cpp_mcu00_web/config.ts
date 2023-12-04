@@ -8,7 +8,7 @@ import {
 import { mcu_base_t, mcu_baseI18n_t, mcu_baseI18n } from "@ui/mcu_base/.t"
 import {mcu_net_t, mcu_netI18n_t, mcu_netI18n} from "@ui/mcu_net/.t"
 import { mcu_state_t, mcu_stateI18n_t, mcu_stateI18n } from "@ui/mcu_state/.t"
-import { mcu_serial_t, mcu_serialI18n_t, mcu_serialI18n } from "@ui/mcu_ipcserial/.t"
+import { mcu_serial_t, mcu_serialI18n_t, mcu_serialI18n } from "@ui/mcu_ipcSerial/.t"
 import { mcu_ybl_t, mcu_yblI18n_t, mcu_yblI18n } from "@ui/mcu_ybl/.t"
 import {
     mcu_webPageServer_t, mcu_webPageServerI18n_t, mcu_webPageServerI18n,

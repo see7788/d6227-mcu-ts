@@ -21,16 +21,11 @@ export default (...[reqIpcInit, res]: param_t) => {
                 return
             }
             msg_set("正在连接")
-            url = "ws://" + ip + "/mqtt";
+            url = "mqtt://" + ip + "/mqtt";
         }
-        try {
-            obj = mqtt.connect(url);
-        } catch (e) {
-            msg_set(JSON.stringify(e))
-        }
+        mqtt.connect(url,{reconnectPeriod: 3000});//断线重连间隔
         obj.on("error", e => {
-            msg_set("连接有错" + JSON.stringify(e))
-            console.log(e)
+            msg_set("有错" + JSON.stringify(e))
         })
         obj.on("close", () => {
             setTimeout(() => {
@@ -38,20 +33,24 @@ export default (...[reqIpcInit, res]: param_t) => {
                 connect(url);
             }, 5000);
         })
-        obj.on("connect", _ => {
-            msg_set(true);
-            obj.subscribe("any", { qos: 0 }, (err, c) => {
+        obj.on("connect", (...a) => {
+            reqIpcInit((str) => obj.publish(
+                "any",
+                Buffer.from(str),
+                { qos: 1},
+                console.log
+            ))
+            obj.subscribe("any", { qos: 1 }, (err, c) => {
                 if (!err) {
-                    reqIpcInit((str) => {
-                        obj.publish("any", Buffer.from(str), { qos: 0, retain: false });
-                        console.log(str, c)
-                    })
+                    console.log(mqtt.Store);
                 } else {
                     console.error(err)
                 }
             });
+            msg_set(true);
         })
         obj.on("message", (topic, message) => {
+            console.log(topic, message)
             res(message.toString())
         })
     }
