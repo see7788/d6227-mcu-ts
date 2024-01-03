@@ -6,24 +6,24 @@ import MqttServer, { Client as mqttClient } from 'aedes'
 import {} from "mqtt"
 import { createServer as createHttpServer} from "http";
 const expressServerObj = express();
-// expressServerObj.get('/index.html', (req, res) => {
-//     res.end('hello index')
-// })
-// expressServerObj.get('*', (req, res) => {
-//     res.end('**********')
-// },console.log)
-// expressServerObj.listen(8888)
-// const httpServerObj = createHttpServer(expressServerObj);
-// httpServerObj.listen(8888)
-// const SocketIoServerObj = new createSocketIoServer(httpServerObj);
-// SocketIoServerObj.listen(8888)
+expressServerObj.get('/index.html', (req, res) => {
+    res.end('hello index')
+})
+expressServerObj.get('*', (req, res) => {
+    res.end('**********')
+},console.log)
+expressServerObj.listen(8888,()=>console.log())
+const httpServerObj = createHttpServer(expressServerObj);
+httpServerObj.listen(8888,()=>console.log())
+const SocketIoServerObj = new createSocketIoServer(httpServerObj);
+SocketIoServerObj.listen(8888)
 
 // console.log(config)
 
-// const mqttServerObj = new MqttServer()
-// createNetServer(mqttServerObj.handle).listen(config.port, function () {
-//     console.log('aedes on port ')
-// })
+const mqttServerObj = new MqttServer()
+createNetServer(mqttServerObj.handle).listen(config.port, function () {
+    console.log('aedes on port ')
+})
 
 interface ServerToClientEvents {
     noArg: () => void;
