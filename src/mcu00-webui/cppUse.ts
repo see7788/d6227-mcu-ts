@@ -2,7 +2,6 @@
 
 import * as mcu00 from "./config"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
 import fs from "node:fs"
 const { outDir } = Object.fromEntries(process.argv.slice(2).map(v => v.replace("--", "")).map(v => v.split("="))) as { outDir: string };
 function createFile(config: any, i18n: any) {

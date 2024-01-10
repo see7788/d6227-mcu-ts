@@ -2,13 +2,9 @@ import {
     defineConfig,
     Plugin,
     loadEnv,
-    UserConfigExport,
     UserConfigFn,
     normalizePath,
-    createServer
 } from 'vite'
-import express from "express";
-import ViteExpress from "vite-express";
 import { resolve } from "node:path"
 import react from '@vitejs/plugin-react'
 import packagejson from "./package.json"
@@ -16,20 +12,18 @@ import { fileURLToPath } from 'node:url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 // import https from 'vite-plugin-mkcert'//https
 import https from "@vitejs/plugin-basic-ssl"//https
-// import {mcu00} from "./src/useStore"
 // import { visualizer } from "rollup-plugin-visualizer"
 // import viteCompression from 'vite-plugin-compression';
-import { exec } from "child_process"
 import htmlConfig from 'vite-plugin-html-config';
 import path from "path"
 import fs from "fs"
+const debug = console.dir
 function copyFileToFile_plugin(srcpath: string, destpath: string): Plugin {
     return {
         name: 'copyFileToFile_plugin',
         apply: 'build',
         async generateBundle(): Promise<any> {
             return new Promise(ok => {
-                // console.log({ src, dest })
                 const readStream = fs.createReadStream(srcpath);
                 const dir = path.dirname(destpath)
                 if (!fs.existsSync(dir)) {
@@ -59,8 +53,25 @@ function variableToFile_plugin(jsonobject: object, destpath: string): Plugin {
         }
     }
 }
-const { outDir } = Object.fromEntries(process.argv.slice(2).map(v => v.replace("--", "")).map(v => v.split("="))) as { mode: string, outDir: string };
-
+function parseArgs() {
+    const args = process.argv//.slice(2)
+    const result: Record<string, string> = {};
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (arg.startsWith('--')) {
+            const name = arg.slice(2);
+            let value = "";
+            if (i + 1 < args.length && !args[i + 1].startsWith('--')) {
+                value = args[i + 1];
+                i++;
+            }
+            result[name] = value;
+        }
+    }
+    return result;
+}
+const { mode, outDir } = parseArgs()
+console.log({ mode, outDir})
 const webconfig: UserConfigFn = ({ command, mode }) => {
     const tsxName = "app.tsx"
     const cwdPath = normalizePath(process.cwd())
@@ -69,12 +80,12 @@ const webconfig: UserConfigFn = ({ command, mode }) => {
     const tsxPath = normalizePath(path.resolve(sitePath, tsxName))
     if (!fs.existsSync(tsxPath)) {
         const apps = fs.readdirSync(srcPath).filter(v => fs.existsSync(path.resolve(srcPath, v, tsxName))).map(v => `pnpm run dev --mode ${v}`);
-        console.log(apps)
+        debug(apps)
         throw new Error("!fs.existsSync(tsxPath)")
     }
     const title = `${packagejson.name}-${mode}`
     const buildToPath = normalizePath(outDir || path.resolve(cwdPath, `${title}-build`))
-    console.log({ command, cwdPath, tsxPath, title, buildToPath, env: loadEnv(mode, process.cwd()) })
+    debug({ command, cwdPath, tsxPath, title, buildToPath, env: loadEnv(mode, process.cwd()) })
     return {
         server: {
             open: true,
@@ -130,7 +141,7 @@ const webconfig: UserConfigFn = ({ command, mode }) => {
             outDir: buildToPath,
             sourcemap: false,
             rollupOptions: {
-                input: './src/mcu00_server/main.ts',
+                //input: './src/mcu00_server/main.ts',
                 output: {
                     entryFileNames: '[name][hash:6].js',
                     chunkFileNames: '[name][hash:6].js',

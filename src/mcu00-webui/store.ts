@@ -1,6 +1,5 @@
 import { immer } from 'zustand/middleware/immer'
 import { create } from "zustand"
-import type { UseBoundStore, StoreApi } from "zustand"
 import { reqIpcInit_t } from "@ui/type"
 import type { } from 'zustand/middleware'//调试作用
 import { dz003StateReqParam } from "@ui/mcu_dz003/.t"
@@ -61,9 +60,9 @@ const useStore = create<store_t>()(immer<store_t>((seter, self) => {
         res: jsonstr => seter(s => {
             try {
                 const data = JSON.parse(jsonstr) as { api: string, db: Partial<state_t>, token: string };
-                // if (data.token !== defapptoken) {
-                //     data.token += ' apptoken error'
-                // } else 
+                if (data.token !== defapptoken) {
+                    data.token += ' apptoken error'
+                } else 
                 if (data.api.indexOf("set") === -1) {
                     data.api += ".indexOf('set') === -1"
                 } else {
